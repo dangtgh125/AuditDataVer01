@@ -22,7 +22,7 @@ import javax.swing.JTextArea;
 @SuppressWarnings("serial")
 public class MainGUI extends JFrame {
 
-	public static int _numFilesOfBlock = 0;
+	public static int _numFilesOfBlock = 100;
 	private JPanel contentPanel;
 	private JTextField _txtfieldInput, _txtfieldOutput, _txtFilesBlock;
 	private JButton _btnOpenInput, _btnOpenOutput, _btnEncrypt, _btnDecrypt, _btnExportReport;

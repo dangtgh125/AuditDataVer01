@@ -25,6 +25,8 @@ public class MngrScript {
 	public void exeCreateRScriptFile(int numFile) throws IOException {
 		double mean = randomMean(numFile);
 		double sd = randomSd(numFile, mean);
+		System.out.println("mean = " + mean);
+		System.out.println("sd = " + sd);
 		String content = "# Create a sequence of numbers between 1 and " + numFile + " incrementing by 1."
 						+ "\nx <- seq(1, " + numFile + ", by = 1)"
 						+ "\n# Choose the mean as 2.5 and standard deviation as 0.5."
