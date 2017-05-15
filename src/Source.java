@@ -1,9 +1,11 @@
 import java.io.*;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.crypto.Cipher;
+import javax.swing.plaf.SliderUI;
 
 //import org.rosuda.JRI.Rengine;
 
@@ -38,6 +40,7 @@ public class Source {
 
 		//Vector<Double> ProbVector = new Vector<Double>();
 		convertRToArray(output, ProbVector);
+		
 		Prob_Handle prh = new Prob_Handle(ProbVector);
 		double confidentValue = 0.95;
 		double mean = prh.getMean();
@@ -96,33 +99,36 @@ public class Source {
 	}
 	
 	public static void Encrypt(String key) throws Exception{
+
 		for(int i = 0; i < fileList.size(); i++){
 			String tmp = fileList.get(i);
 			String fileName = MngrFiles.folderInput + tmp;
 			String resultFileName = MngrFiles.folderOutput + tmp + ".enc";
-
+			
 			File file = new File(fileName);
 			if(!file.exists()){
-				System.out.println("No file "+fileName);
+				//System.out.println("No file "+fileName);
 				return;
 			}
 			File file2 = new File(resultFileName);
 			if(file2.exists()){
-				System.out.println("File for encrypted temp file or for the result decrypted file already exists. Please remove it or use a different file name");
+				//System.out.println("File for encrypted temp file already exists. Please remove it or use a different file name");
 				return;
 			}
 
 			AES.copy(Cipher.ENCRYPT_MODE, fileName, resultFileName, key);
-
-			System.out.println("Success. Find encrypted files in current directory");
+			
+			//System.out.println("Success. Find encrypted files in current directory");
 		}
 	}
 	
 	public static void Decrypt(String key) throws Exception {
+		MainGUI._txtAreaDecrypt.setText("");
 		for(int i = 0; i < fileList.size(); i++){
 			String tmp = fileList.get(i);
 			String fileName = MngrFiles.folderInput + tmp;
 			String resultFileName = MngrFiles.folderOutput + tmp;
+			MainGUI._txtAreaDecrypt.append(tmp + "...");
 			
 			// File encrypt has exception is .enc
 			String temp[] = resultFileName.split("\\.");
@@ -134,17 +140,20 @@ public class Source {
 
 			File file = new File(fileName);
 			if(!file.exists()){
+				MainGUI._txtAreaDecrypt.append("Fail\nNo file " + fileName + "\n");
 				System.out.println("No file "+fileName);
 				return;
 			}
 			File file2 = new File(resultFileName);
 			if(file2.exists()){
-				System.out.println("File for encrypted temp file or for the result decrypted file already exists. Please remove it or use a different file name");
+				MainGUI._txtAreaDecrypt.append("Fail\nFile for encrypted temp file already exists. Please remove it or use a different file name\n");
+				System.out.println("File for the result decrypted file already exists. Please remove it or use a different file name");
 				return;
 			}
 
 			AES.copy(Cipher.DECRYPT_MODE, fileName, resultFileName, key);
 
+			MainGUI._txtAreaDecrypt.append("Success\n");
 			System.out.println("Success. Find decrypted files in current directory");
 		}
 	}

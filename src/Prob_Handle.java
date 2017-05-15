@@ -2,12 +2,12 @@ import java.util.Vector;
 import java.math.*;
 
 public class Prob_Handle {
-	private static Vector<Double> _ProbVector;
-	private static double mean; // trung bình xác suất - mean
-	private static double var; // phương sai - variance
-	private static double sd; // độ lệch chuẩn - standard deviation
-	private static int count; // tổng từ 1--n
-	private static int n;
+	private Vector<Double> _ProbVector;
+	private double mean; // trung bình xác suất - mean
+	private double var; // phương sai - variance
+	private double sd; // độ lệch chuẩn - standard deviation
+	private int count; // tổng từ 1--n
+	private int n;
 	
 	public Prob_Handle(){
 		mean = 1;
@@ -30,6 +30,7 @@ public class Prob_Handle {
 	double calulateMean(){
 		double tmp = 0;
 		//int count = 0;
+		System.out.println("Size: " + _ProbVector.size());
 		for(int i = 0; i < _ProbVector.size(); i++){
 			tmp = tmp + (i+1)*_ProbVector.get(i);
 		}

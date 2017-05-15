@@ -39,6 +39,7 @@ public class MngrFiles {
 	}
 	
 	public void writeResultCsv() throws IOException {
+		//tenfile + countblock
 		_fileResult = new File("Result.csv");
 		_fos		= new FileOutputStream(_fileResult, true);
 		String buffer = null;
@@ -63,6 +64,10 @@ public class MngrFiles {
 				_fos.flush();
 				index++;
 			}
+			// 
+			// close
+			// Count++
+			// open file
 		}
 		
 		numfile = Source.fileList.size() - (_countBlock * MainGUI._numFilesOfBlock);

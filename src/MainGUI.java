@@ -18,6 +18,8 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 
 @SuppressWarnings("serial")
 public class MainGUI extends JFrame {
@@ -28,6 +30,8 @@ public class MainGUI extends JFrame {
 	private JButton _btnOpenInput, _btnOpenOutput, _btnEncrypt, _btnDecrypt, _btnExportReport;
 	private JTextField _txtKeyEncrypt;
 	private JTextField _txtKeyDecrypt;
+	public static JTextArea _txtAreaEncrypt, _txtAreaDecrypt;
+	private JScrollPane _scrpAreaEncrypt, _scrpAreaDecrype;
 
 	/**
 	 * Launch the application.
@@ -101,18 +105,22 @@ public class MainGUI extends JFrame {
 		JPanel panelEncrypt = new JPanel();
 		JPanel panelDecrypt = new JPanel();
 		JPanel panelHmac = new JPanel();
+		JPanel panelVerify = new JPanel();
 		panelEncrypt.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panelEncrypt.setLayout(null);
 		panelDecrypt.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panelDecrypt.setLayout(null);
 		panelHmac.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panelHmac.setLayout(null);
+		panelVerify.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panelVerify.setLayout(null);
 		
 		tabbedPane.addTab("Encrypt", null, panelEncrypt, "click to show panel 1");
-		JTextArea _txtAreaEncrypt = new JTextArea();
-		_txtAreaEncrypt.setEditable(false);
-		_txtAreaEncrypt.setBounds(10, 11, 449, 206);
-		panelEncrypt.add(_txtAreaEncrypt);
+		_txtAreaEncrypt = new JTextArea();
+		//_txtAreaEncrypt.setEditable(false);
+		_scrpAreaEncrypt = new JScrollPane(_txtAreaEncrypt);
+		_scrpAreaEncrypt.setBounds(10, 11, 449, 206);
+		panelEncrypt.add(_scrpAreaEncrypt);
 		
 		_btnEncrypt = new JButton("Encrypt");
 		_btnEncrypt.setBounds(364, 228, 95, 33);
@@ -127,8 +135,12 @@ public class MainGUI extends JFrame {
 		panelEncrypt.add(_txtKeyEncrypt);
 		_txtKeyEncrypt.setColumns(10);
 		
+		JScrollBar scrollBar = new JScrollBar();
+		scrollBar.setBounds(442, 11, 17, 206);
+		panelEncrypt.add(scrollBar);
+		
 	    tabbedPane.addTab("Decrypt", null, panelDecrypt, "click to show panel 2");
-	    JTextArea _txtAreaDecrypt = new JTextArea();
+	    _txtAreaDecrypt = new JTextArea();
 	    _txtAreaDecrypt.setEditable(false);
 	    _txtAreaDecrypt.setBounds(10, 11, 449, 209);
 	    panelDecrypt.add(_txtAreaDecrypt);
@@ -148,6 +160,9 @@ public class MainGUI extends JFrame {
 	    
 	    
 	    tabbedPane.addTab("Hmac", null, panelHmac, "click to show panel 3");
+	    //
+	    tabbedPane.addTab("Verify", null, panelVerify, "click to show panel 3");
+	    //
 	    
 	    _txtFilesBlock = new JTextField();
 	    _txtFilesBlock.setBounds(434, 92, 50, 20);
