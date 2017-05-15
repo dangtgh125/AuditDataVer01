@@ -38,6 +38,17 @@ public class Source {
 
 		//Vector<Double> ProbVector = new Vector<Double>();
 		convertRToArray(output, ProbVector);
+		Prob_Handle prh = new Prob_Handle(ProbVector);
+		double confidentValue = 0.95;
+		double mean = prh.getMean();
+		double sd = prh.getSD();
+		double a = mean - sd*prh.getZ(0.025);
+		double b = mean + sd*prh.getZ(0.025);
+		
+		System.out.println("mean = " + mean);
+		System.out.println("sd = " + sd);
+		System.out.println("a = " + a);
+		System.out.println("b = " + b);
 		/*-----------------------------------------------------------------------------------------*/
 		// @ProbVector is a list of probability
 		/*HMAC Test
@@ -48,10 +59,16 @@ public class Source {
 		/*-----------------------------------------------------------------------------------------*/
 		// for each file in encrypt, compute HMAC and save it into csv file
 		mgrFile.getFileList(MngrFiles.folderInput, fileList);
-		//Encrypt();
+		System.out.println(fileList.size());
+		for(int i = 0; i<fileList.size(); i++)
+		{
+			System.out.println(fileList.get(i));
+		}
+		Encrypt("trongcauhcmus123");
 		Primary();
 		mgrFile.writeResultCsv();
-		
+		/*compute [a, b]*/
+
 		
 	} 
 	/*
@@ -63,7 +80,7 @@ public class Source {
 			HMAC hmac = new HMAC(_hashAlg, ProbVector.get(i).toString().getBytes());
 			
 			//folder Input ở đây là folder chứa file Encrypt
-			String tmpfile = MngrFiles.folderInput + fileList.get(i) + ".enc";
+			String tmpfile = MngrFiles.folderOutput + fileList.get(i) + ".enc";
 			System.out.println(tmpfile);
 			
 			byte[] sign = hmac.signFile(tmpfile);
