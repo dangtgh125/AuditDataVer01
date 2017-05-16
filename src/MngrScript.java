@@ -5,7 +5,7 @@ import java.io.IOException;
 public class MngrScript {
 	private String _name = null;
 	private FileOutputStream _out;
-	public static final int a = 0;
+	public static final int a = 90;
 
 	public MngrScript() {
 		_name = "Distribution.R";
@@ -13,18 +13,20 @@ public class MngrScript {
 	}
 	
 	private double randomMean(int numFile) {
-		double random = Math.random() * numFile;
+		double random = numFile*0.2 + numFile * 0.65 * Math.random();
 		return random;
 	}
 	
-	private double randomSd(int numFile, double mean) {
-		double random = Math.random() * numFile - (mean * 0.5);
+	private double randomSd(int numFile) {
+		double random = numFile*0.02 + numFile * 0.08 * Math.random();
 		return random;
 	}
 	
 	public void exeCreateRScriptFile(int numFile) throws IOException {
 		double mean = randomMean(numFile);
-		double sd = randomSd(numFile, mean);
+		double sd = randomSd(numFile);
+		System.out.println("mean = " + mean);
+		System.out.println("sd = " + sd);
 		String content = "# Create a sequence of numbers between 1 and " + numFile + " incrementing by 1."
 						+ "\nx <- seq(1, " + numFile + ", by = 1)"
 						+ "\n# Choose the mean as 2.5 and standard deviation as 0.5."
