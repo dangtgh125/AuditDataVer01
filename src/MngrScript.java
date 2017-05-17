@@ -1,6 +1,11 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MngrScript {
 	private String _name = null;
@@ -22,17 +27,17 @@ public class MngrScript {
 		return random;
 	}
 	
-	public void exeCreateRScriptFile(int numFile) throws IOException {
+	public void exeCreateRScriptFile(int numFile, int numBlock) throws IOException {
 		double mean = randomMean(numFile);
 		double sd = randomSd(numFile);
 		System.out.println("mean = " + mean);
 		System.out.println("sd = " + sd);
 		String content = "# Create a sequence of numbers between 1 and " + numFile + " incrementing by 1."
-						+ "\nx <- seq(1, " + numFile + ", by = 1)"
-						+ "\n# Choose the mean as 2.5 and standard deviation as 0.5."
-						+ "\ny <- dnorm(x, mean = " + mean + ", sd = " + sd + ")"
-						+ "\nprint(y)"
-						+ "\nwrite.csv(y,\"output.csv\", row.names = FALSE)";
+						+ "\n\tx <- seq(1, " + numFile + ", by = 1)"
+						+ "\n\t# Choose the mean as 2.5 and standard deviation as 0.5."
+						+ "\n\ty <- dnorm(x, mean = " + mean + ", sd = " + sd + ")"
+						+ "\n\tprint(y)"
+						+ "\n\twrite.csv(y,\"" + numBlock + "_output.csv\", row.names = FALSE)";
 		
 		File f = new File("src\\" + this._name);
 		if (f.exists()) {
@@ -48,5 +53,45 @@ public class MngrScript {
 		this._out.flush();
 		this._out.close();
 		
+	}
+	
+	public static void convertRToArray(String in, Vector<Double> out) {
+		// String[] splitString = in.split("(\\w)*.(\\w)*e-(\\w)*");
+
+		String pattern = "\\d+\\.\\d*e?-?\\d+";
+		// Create a Pattern object
+		Pattern r = Pattern.compile(pattern);
+		// Now create matcher object.
+		Matcher m = r.matcher(in);
+
+		while (m.find() == true) {
+			out.addElement(Double.parseDouble(m.group(0)));
+		}
+		for (int i = 0; i < out.size(); i++) {
+			//System.out.println(out.get(i));
+		}
+	}
+	
+	/*
+	 * Mở từng file chứa kết quả prob của từng block và đọc từng dòng vào
+	 */
+	public static void convertRToArray(Vector<Double> out) throws IOException {
+		FileReader fileName = null;
+		BufferedReader reader = null;
+		String buffer = null;
+		
+		for (int i = 0; i < MngrFiles._countBlock; i++) {
+			int numBlock = i + 1;
+			fileName = new FileReader(numBlock + "_output.csv");
+			reader = new BufferedReader(fileName);
+			
+			buffer = reader.readLine();
+			while ((buffer = reader.readLine()) != null) {
+				out.addElement(Double.parseDouble(buffer));
+			}
+			
+			fileName.close();
+			reader.close();
+		}
 	}
 }

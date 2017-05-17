@@ -1,11 +1,11 @@
 import java.util.Vector;
-import java.math.*;
 
 public class Prob_Handle {
 	private Vector<Double> _ProbVector;
 	private double mean; // trung bình xác suất - mean
 	private double var; // phương sai - variance
 	private double sd; // độ lệch chuẩn - standard deviation
+	@SuppressWarnings("unused")
 	private int count; // tổng từ 1--n
 	private int n;
 	

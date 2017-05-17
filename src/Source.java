@@ -1,11 +1,7 @@
 import java.io.*;
 import java.util.Vector;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.crypto.Cipher;
-import javax.swing.plaf.SliderUI;
 
 //import org.rosuda.JRI.Rengine;
 
@@ -28,21 +24,9 @@ public class Source {
 	public static void main(String[] args) throws  Exception {
 		// TODO Auto-generated method stub
 
-		_mgrScript.exeCreateRScriptFile(100);
 		
-		ExecuteShellComand obj = new ExecuteShellComand();
-
-		String command = "Rscript src\\Distribution.R";
-
-		String output = obj.executeCommand(command);
-
-		//System.out.println(output);
-
-		//Vector<Double> ProbVector = new Vector<Double>();
-		convertRToArray(output, ProbVector);
 		
 		Prob_Handle prh = new Prob_Handle(ProbVector);
-		double confidentValue = 0.95;
 		double mean = prh.getMean();
 		double sd = prh.getSD();
 		double a = mean - sd*prh.getZ(0.025);
@@ -69,11 +53,99 @@ public class Source {
 		}
 		Encrypt("trongcauhcmus123");
 		Primary();
-		mgrFile.writeResultCsv();
+		mgrFile.writeResultCsv("Result");
 		/*compute [a, b]*/
 
 		
 	} 
+	/*Compute HMAC for file encrypted
+	 * @numBlock : number of block
+	 * @blockSize: number file on each block
+	 * @fileList : list of file in folderEncrypt
+	 * */
+	public static void computeHMACfileList(int numBlock, int blockSize, Vector<String> fileList, String folderResult) throws GeneralSecurityException, IOException{
+		//
+		for(int i = 0; i<numBlock; i++){
+			//MAC result
+			Vector<String> result = new Vector<String>();
+			//ProbVector for each block
+			Vector<Double> ProbVector = new Vector<Double>();
+			//Generate ProbVector with number is blocksize
+			ProbGen(blockSize, i + 1, ProbVector);
+			
+			//compute MAC for each block
+			for(int j = 0; j<blockSize; j++){
+				String tmp = computeHMACFile(MngrFiles.folderInput + fileList.get(i*blockSize + j), ProbVector.get(j).toString());
+				result.add(tmp);
+			}
+			MngrFiles.writeMACresult(result, i, folderResult);
+			MngrFiles.writeProbVectorResult(ProbVector, i, folderResult);
+			result.clear();
+			ProbVector.clear();
+		}
+		
+		//compute for remain
+		{
+			int finalBlockSize = fileList.size() - numBlock*blockSize;
+			System.out.println(finalBlockSize);
+			if (finalBlockSize == 0)
+				return;
+			
+			//MAC result
+			Vector<String> result = new Vector<String>();
+			//ProbVector for each block
+			Vector<Double> ProbVector = new Vector<Double>();
+			//Generate ProbVector with number is finalBlocksize
+			ProbGen(finalBlockSize, numBlock + 1, ProbVector);
+			
+			//compute MAC for final block
+			for(int j = 0; j<finalBlockSize; j++){
+				String tmp = computeHMACFile(fileList.get(numBlock*blockSize + j), ProbVector.get(j).toString());
+				result.add(tmp);
+			}
+			MngrFiles.writeMACresult(result, numBlock+1, folderResult);
+			MngrFiles.writeProbVectorResult(ProbVector, numBlock+1, folderResult);
+		}
+	}
+	
+	public static void writeMACresult(Vector<String> result, int blockID, String folderResult){
+		
+	}
+	
+	public static String computeHMACFile(String fileDirect, String keyPhrase) throws GeneralSecurityException, IOException{
+		HMAC hmac = new HMAC(_hashAlg, keyPhrase);
+		
+		//startTime = System.nanoTime();
+		byte[] sign = hmac.signFile(fileDirect);
+		//endTime = System.nanoTime();
+		//duration = (endTime - startTime) / 1000000.0;
+		
+        //convert the byte to hex format method 1
+        String sb = new String();
+        for (int i = 0; i < sign.length; i++) {
+         sb = sb + (Integer.toString((sign[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        //System.out.println(sb);
+        
+        return sb;
+	}
+	
+	/*
+	 * numFile: số lượng file 1 block
+	 * numBlock: generate xs cho Block thứ num (tên file script <numBlock>_output.csv)
+	 */
+	public static void ProbGen(int numFile, int numBlock, Vector<Double> ProbVector) throws IOException{
+		_mgrScript.exeCreateRScriptFile(numFile, numBlock);
+		
+		ExecuteShellComand obj = new ExecuteShellComand();
+
+		String command = "Rscript src\\Distribution.R";
+
+		String output = obj.executeCommand(command);
+
+		MngrScript.convertRToArray(output, ProbVector);
+	}
+	
 	/*
 	 * copute HMAC for each file encrypted
 	 * */
@@ -122,6 +194,31 @@ public class Source {
 		}
 	}
 	
+	/*
+	 * Mã hóa với tham số là tên file và key
+	 * Giá trị trả về là true hoặc false
+	 */
+	public static boolean Encrypt(String name, String key) throws Exception{
+		String fileName = MngrFiles.folderInput + name;
+		String resultFileName = MngrFiles.folderOutput + name + ".enc";
+		
+		File file = new File(fileName);
+		if(!file.exists()){
+			//System.out.println("No file "+fileName);
+			return false;
+		}
+		File file2 = new File(resultFileName);
+		if(file2.exists()){
+			//System.out.println("File for encrypted temp file already exists. Please remove it or use a different file name");
+			return false;
+		}
+
+		AES.copy(Cipher.ENCRYPT_MODE, fileName, resultFileName, key);
+		
+		//System.out.println("Success. Find encrypted files in current directory");
+		return true;
+	}
+	
 	public static void Decrypt(String key) throws Exception {
 		MainGUI._txtAreaDecrypt.setText("");
 		for(int i = 0; i < fileList.size(); i++){
@@ -158,6 +255,39 @@ public class Source {
 		}
 	}
 	
+	/*
+	 * Giải mã với tham số là tên file và key
+	 * Giá trị trả về là true hoặc false
+	 */
+	public static boolean Decrypt(String name, String key) throws Exception {
+		String fileName = MngrFiles.folderInput + name;
+		String resultFileName = MngrFiles.folderOutput + name;
+		
+		// File encrypt has exception is .enc
+		String temp[] = resultFileName.split("\\.");
+		if(!temp[1].equals("enc")){
+			resultFileName = temp[0] + "." + temp[1];
+		}
+		else
+			resultFileName = temp[0];
+
+		File file = new File(fileName);
+		if(!file.exists()){
+			System.out.println("No file "+fileName);
+			return false;
+		}
+		File file2 = new File(resultFileName);
+		if(file2.exists()){
+			System.out.println("File for the result decrypted file already exists. Please remove it or use a different file name");
+			return false;
+		}
+
+		AES.copy(Cipher.DECRYPT_MODE, fileName, resultFileName, key);
+
+		System.out.println("Success. Find decrypted files in current directory");
+		return true;
+	}
+	
 	public static void HMACTest() throws GeneralSecurityException, IOException {
 		long startTime;
 		double duration;
@@ -180,22 +310,5 @@ public class Source {
         System.out.println(duration);
 	}
 	
-	public static void convertRToArray(String in, Vector<Double> out) {
-		// String[] splitString = in.split("(\\w)*.(\\w)*e-(\\w)*");
-
-		String pattern = "\\d+\\.\\d*e?-?\\d+";
-		// Create a Pattern object
-		Pattern r = Pattern.compile(pattern);
-		// Now create matcher object.
-		Matcher m = r.matcher(in);
-
-		while (m.find() == true) {
-			out.addElement(Double.parseDouble(m.group(0)));
-		}
-		for (int i = 0; i < out.size(); i++) {
-			//System.out.println(out.get(i));
-		}
-
-	}
 
 }

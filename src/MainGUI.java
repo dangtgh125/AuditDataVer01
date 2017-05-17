@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -20,18 +22,20 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import java.awt.Label;
 
 @SuppressWarnings("serial")
 public class MainGUI extends JFrame {
 
-	public static int _numFilesOfBlock = 100;
+	public static int _numFilesOfBlock;
 	private JPanel contentPanel;
 	private JTextField _txtfieldInput, _txtfieldOutput, _txtFilesBlock;
-	private JButton _btnOpenInput, _btnOpenOutput, _btnEncrypt, _btnDecrypt, _btnExportReport;
+	private JButton _btnOpenInput, _btnOpenOutput, _btnEncrypt, _btnDecrypt, _btnExportReport, _btnRun;
 	private JTextField _txtKeyEncrypt;
 	private JTextField _txtKeyDecrypt;
 	public static JTextArea _txtAreaEncrypt, _txtAreaDecrypt;
 	private JScrollPane _scrpAreaEncrypt, _scrpAreaDecrype;
+	private JTextField _txtField_ProbVector_Location;
 
 	/**
 	 * Launch the application.
@@ -139,11 +143,12 @@ public class MainGUI extends JFrame {
 		scrollBar.setBounds(442, 11, 17, 206);
 		panelEncrypt.add(scrollBar);
 		
-	    tabbedPane.addTab("Decrypt", null, panelDecrypt, "click to show panel 2");
+		tabbedPane.addTab("Decrypt", null, panelDecrypt, "click to show panel 2");
 	    _txtAreaDecrypt = new JTextArea();
 	    _txtAreaDecrypt.setEditable(false);
-	    _txtAreaDecrypt.setBounds(10, 11, 449, 209);
-	    panelDecrypt.add(_txtAreaDecrypt);
+	    _scrpAreaDecrype = new JScrollPane(_txtAreaDecrypt);
+	    _scrpAreaDecrype.setBounds(10, 11, 449, 209);
+	    panelDecrypt.add(_scrpAreaDecrype);
 	    
 	    _btnDecrypt = new JButton("Decrypt");
 	    _btnDecrypt.setBounds(364, 231, 95, 33);
@@ -160,8 +165,56 @@ public class MainGUI extends JFrame {
 	    
 	    
 	    tabbedPane.addTab("Hmac", null, panelHmac, "click to show panel 3");
+	    
+	    Label lblMACList = new Label("MAC list");
+	    lblMACList.setBounds(50, 47, 56, 16);
+	    panelHmac.add(lblMACList);
+	    
+	    JTextArea _txtMACArea = new JTextArea();
+	    _txtMACArea.setBounds(112, 47, 345, 178);
+	    panelHmac.add(_txtMACArea);
+	    
+	    _btnRun = new JButton("Run");
+	    _btnRun.setBounds(360, 238, 97, 25);
+	    panelHmac.add(_btnRun);
 	    //
 	    tabbedPane.addTab("Verify", null, panelVerify, "click to show panel 3");
+	    
+	    JButton _btn_Browse_Key_ProbVector = new JButton("Browse");
+	    _btn_Browse_Key_ProbVector.setBounds(429, 13, 28, 25);
+	    panelVerify.add(_btn_Browse_Key_ProbVector);
+	    
+	    JButton _btnComputeConfidentInterval = new JButton("Compute Confident Interval");
+	    _btnComputeConfidentInterval.setBounds(268, 240, 189, 25);
+	    panelVerify.add(_btnComputeConfidentInterval);
+	    
+	    _txtField_ProbVector_Location = new JTextField();
+	    _txtField_ProbVector_Location.setEditable(false);
+	    _txtField_ProbVector_Location.setBounds(135, 14, 282, 22);
+	    panelVerify.add(_txtField_ProbVector_Location);
+	    _txtField_ProbVector_Location.setColumns(10);
+	    
+	    JLabel lblProbvectorLocation = new JLabel("ProbVector Location");
+	    lblProbvectorLocation.setBounds(10, 17, 122, 16);
+	    panelVerify.add(lblProbvectorLocation);
+	    
+	    JLabel lblEncPoint = new JLabel("End Point");
+	    lblEncPoint.setBounds(63, 136, 60, 16);
+	    panelVerify.add(lblEncPoint);
+	    
+	    JLabel lblStartPoint = new JLabel("Start Point");
+	    lblStartPoint.setBounds(63, 46, 60, 16);
+	    panelVerify.add(lblStartPoint);
+	    
+	    JTextArea _txtStartPoint = new JTextArea();
+	    _txtStartPoint.setEditable(false);
+	    _txtStartPoint.setBounds(135, 46, 282, 74);
+	    panelVerify.add(_txtStartPoint);
+	    
+	    JTextArea _txtEndPoint = new JTextArea();
+	    _txtEndPoint.setEditable(false);
+	    _txtEndPoint.setBounds(135, 133, 282, 74);
+	    panelVerify.add(_txtEndPoint);
 	    //
 	    
 	    _txtFilesBlock = new JTextField();
@@ -247,6 +300,8 @@ public class MainGUI extends JFrame {
 						
 							Source.Encrypt("passwordtrongcau");
 							
+							Source.fileList.clear();
+							
 						} catch (Exception e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -272,6 +327,8 @@ public class MainGUI extends JFrame {
 						
 							Source.Decrypt("passwordtrongcau");
 							
+							Source.fileList.clear();
+							
 						} catch (Exception e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -294,12 +351,36 @@ public class MainGUI extends JFrame {
 		    			infoBox("ProbVector is empty", "Warning");
 		    		}
 		    		else {
-		    			Source.mgrFile.writeResultCsv();
+		    			Source.mgrFile.writeResultCsv("Result");
 		    		}
 	    		} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+	    	}
+	    });
+	    
+	    _btnRun.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent e) {
+	    		if (e.getSource() == _btnRun) {
+	    			if (!_txtFilesBlock.getText().equals("")) {
+	    				_numFilesOfBlock = Integer.parseInt(_txtFilesBlock.getText());
+			    		MngrFiles._countBlock = 0;
+			    		Source.mgrFile.getFileList(MngrFiles.folderInput, Source.fileList);
+			    		System.out.println("count block:" + MngrFiles._countBlock);
+			    		System.out.println(MngrFiles.folderInput);
+			    		System.out.println(MngrFiles.folderOutput);
+			    		
+			    		try {
+			    			// numBlock is countBlock, blockSize is numFilesOfBlock
+							Source.computeHMACfileList(MngrFiles._countBlock, _numFilesOfBlock, Source.fileList , MngrFiles.folderOutput);
+							Source.fileList.clear();
+						} catch (GeneralSecurityException | IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+	    			}
+	    		}
 	    	}
 	    });
 	   
