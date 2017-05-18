@@ -8,7 +8,7 @@ public class MngrFiles {
 	public static String folderOutput = "src\\Encrypted\\";
 	static File _fileResult = null;
 	static FileOutputStream _fos = null;
-	public static int _countBlock = 0;
+	public static int _countBlock = 1;
 	
 	public MngrFiles(){
 		

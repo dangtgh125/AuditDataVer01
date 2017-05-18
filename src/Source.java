@@ -12,7 +12,7 @@ public class Source {
 	public static String _encryptAlg = "AES-256";
 	public static String _hashAlg = "MD5";
 	static final MngrFiles mgrFile = new MngrFiles();
-	private static MngrScript _mgrScript = new MngrScript();
+	static final MngrScript mgrScript = new MngrScript();
 	
 	public static Vector<String> fileList = new Vector<String>();
 	public static Vector<Double> ProbVector = new Vector<Double>();
@@ -24,18 +24,33 @@ public class Source {
 	public static void main(String[] args) throws  Exception {
 		// TODO Auto-generated method stub
 
+		for (int i = 0; i < 1; i++) {
+			
+			ProbGen(200, i+1, ProbVector);
+		
+			System.out.println("Size = " + ProbVector.size());
+			Prob_Handle prh = new Prob_Handle(ProbVector);
+			double mean = prh.getMean();
+			double sd = prh.getSD();
+			double a = mean - sd*prh.getZ(0.025);
+			double b = mean + sd*prh.getZ(0.025);
+			
+			System.out.println("mean = " + mean);
+			System.out.println("sd = " + sd);
+			System.out.println("a = " + a);
+			System.out.println("b = " + b);
+			
+			Double sum = (double) 0;
+			for (int j = 0; j < ProbVector.size(); j++) {
+				sum = sum + ProbVector.get(j);
+				System.out.println("Prob = " + ProbVector.get(j));
+			}
+
+			System.out.println("Sum = " + sum);
+			System.out.println("Size = " + ProbVector.size());
+		}
 		
 		
-		Prob_Handle prh = new Prob_Handle(ProbVector);
-		double mean = prh.getMean();
-		double sd = prh.getSD();
-		double a = mean - sd*prh.getZ(0.025);
-		double b = mean + sd*prh.getZ(0.025);
-		
-		System.out.println("mean = " + mean);
-		System.out.println("sd = " + sd);
-		System.out.println("a = " + a);
-		System.out.println("b = " + b);
 		/*-----------------------------------------------------------------------------------------*/
 		// @ProbVector is a list of probability
 		/*HMAC Test
@@ -45,7 +60,7 @@ public class Source {
 		//HMACTest();
 		/*-----------------------------------------------------------------------------------------*/
 		// for each file in encrypt, compute HMAC and save it into csv file
-		mgrFile.getFileList(MngrFiles.folderInput, fileList);
+		/*mgrFile.getFileList(MngrFiles.folderInput, fileList);
 		System.out.println(fileList.size());
 		for(int i = 0; i<fileList.size(); i++)
 		{
@@ -108,10 +123,6 @@ public class Source {
 		}
 	}
 	
-	public static void writeMACresult(Vector<String> result, int blockID, String folderResult){
-		
-	}
-	
 	public static String computeHMACFile(String fileDirect, String keyPhrase) throws GeneralSecurityException, IOException{
 		HMAC hmac = new HMAC(_hashAlg, keyPhrase);
 		
@@ -135,15 +146,15 @@ public class Source {
 	 * numBlock: generate xs cho Block thứ num (tên file script <numBlock>_output.csv)
 	 */
 	public static void ProbGen(int numFile, int numBlock, Vector<Double> ProbVector) throws IOException{
-		_mgrScript.exeCreateRScriptFile(numFile, numBlock);
+		mgrScript.exeCreateRScriptFile(numFile, numBlock);
 		
 		ExecuteShellComand obj = new ExecuteShellComand();
 
 		String command = "Rscript src\\Distribution.R";
 
-		String output = obj.executeCommand(command);
-
-		MngrScript.convertRToArray(output, ProbVector);
+		obj.executeCommand(command);
+		
+		MngrScript.convertRToArray(ProbVector);
 	}
 	
 	/*
