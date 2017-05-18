@@ -10,19 +10,19 @@ import java.util.regex.Pattern;
 public class MngrScript {
 	private String _name = null;
 	private FileOutputStream _out;
-	public static final int a = 90;
+	public final int a = 90;
 
 	public MngrScript() {
 		_name = "Distribution.R";
 		_out  = null;
 	}
 	
-	private double randomMean(int numFile) {
+	private static double randomMean(int numFile) {
 		double random = numFile*0.2 + numFile * 0.65 * Math.random();
 		return random;
 	}
 	
-	private double randomSd(int numFile) {
+	private static double randomSd(int numFile) {
 		double random = numFile*0.02 + numFile * 0.08 * Math.random();
 		return random;
 	}
@@ -39,7 +39,7 @@ public class MngrScript {
 						+ "\n\tprint(y)"
 						+ "\n\twrite.csv(y,\"" + numBlock + "_output.csv\", row.names = FALSE)";
 		
-		File f = new File("src\\" + this._name);
+		File f = new File("src\\" + _name);
 		if (f.exists()) {
 			if (f.delete()) {
 				System.out.println("Delete success file");
@@ -47,11 +47,11 @@ public class MngrScript {
 		}
 		f.createNewFile();
 		
-		this._out = new FileOutputStream(f);
+		_out = new FileOutputStream(f);
 		byte[] buffer = content.getBytes();
-		this._out.write(buffer);
-		this._out.flush();
-		this._out.close();
+		_out.write(buffer);
+		_out.flush();
+		_out.close();
 		
 	}
 	
