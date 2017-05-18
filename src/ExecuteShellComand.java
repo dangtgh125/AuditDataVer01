@@ -3,8 +3,18 @@ import java.io.InputStreamReader;
 
 public class ExecuteShellComand {
 
-
-	String executeCommand(String command) {
+	void executeCommand(String command) {
+		Process p;
+		try {
+			p = Runtime.getRuntime().exec(command);
+			p.waitFor();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	String executeCommand01(String command) {
 
 		StringBuffer output = new StringBuffer();
 
