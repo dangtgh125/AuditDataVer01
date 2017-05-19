@@ -82,7 +82,7 @@ public class MngrScript {
 		
 		for (int i = 0; i < MngrFiles._countBlock; i++) {
 			int numBlock = i + 1;
-			fileName = new FileReader(numBlock + "_output.csv");
+			fileName = new FileReader("Result\\" + numBlock + "_output.csv");
 			reader = new BufferedReader(fileName);
 			
 			buffer = reader.readLine();
