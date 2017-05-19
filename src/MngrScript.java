@@ -37,7 +37,7 @@ public class MngrScript {
 						+ "\n\t# Choose the mean as 2.5 and standard deviation as 0.5."
 						+ "\n\ty <- dnorm(x, mean = " + mean + ", sd = " + sd + ")"
 						+ "\n\tprint(y)"
-						+ "\n\twrite.csv(y,\"" + numBlock + "_output.csv\", row.names = FALSE)";
+						+ "\n\twrite.csv(y,\"Result\\\\" + numBlock + "_output.csv\", row.names = FALSE)";
 		
 		File f = new File("src\\" + _name);
 		if (f.exists()) {
