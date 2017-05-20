@@ -3,6 +3,8 @@ import java.util.Vector;
 
 import javax.crypto.Cipher;
 
+import org.rosuda.JRI.Rengine;
+
 //import org.rosuda.JRI.Rengine;
 
 import java.security.GeneralSecurityException;
@@ -24,7 +26,7 @@ public class Source {
 	public static void main(String[] args) throws  Exception {
 		// TODO Auto-generated method stub
 
-		for (int i = 0; i < 1; i++) {
+		/*for (int i = 0; i < 1; i++) {
 			
 			ProbGen(200, i+1, ProbVector);
 		
@@ -48,7 +50,9 @@ public class Source {
 
 			System.out.println("Sum = " + sum);
 			System.out.println("Size = " + ProbVector.size());
-		}
+		}*/
+		
+		ProbGen(300, 1, ProbVector);
 		
 		
 		/*-----------------------------------------------------------------------------------------*/
@@ -142,19 +146,21 @@ public class Source {
 	}
 	
 	/*
-	 * numFile: số lượng file 1 block
-	 * numBlock: generate xs cho Block thứ num (tên file script <numBlock>_output.csv)
+	 * blockSize: số lượng file 1 block
+	 * blockID: chi so block hien tai generate xs cho Block thứ num (tên file script <numBlock>_output.csv) blockID
 	 */
-	public static void ProbGen(int numFile, int numBlock, Vector<Double> ProbVector) throws IOException{
-		mgrScript.exeCreateRScriptFile(numFile, numBlock);
+	public static void ProbGen(int blockSize, int blockID, Vector<Double> ProbVector) throws IOException{
+		mgrScript.exeCreateRScriptFile(blockSize, blockID);
 		
 		ExecuteShellComand obj = new ExecuteShellComand();
 
-		String command = "Rscript src\\Distribution.R";
+		String[] command = {"source('src\\\\Distribution.R')"};
 
 		obj.executeCommand(command);
 		
 		MngrScript.convertRToArray(ProbVector);
+		
+		//
 	}
 	
 	/*
