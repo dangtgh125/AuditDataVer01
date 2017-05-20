@@ -11,6 +11,7 @@ public class MngrScript {
 	private String _name = null;
 	private FileOutputStream _out;
 	public final int a = 90;
+	private static String _folderTemp = "TempR\\";
 
 	public MngrScript() {
 		_name = "Distribution.R";
@@ -37,7 +38,7 @@ public class MngrScript {
 						+ "\n\t# Choose the mean as 2.5 and standard deviation as 0.5."
 						+ "\n\ty <- dnorm(x, mean = " + mean + ", sd = " + sd + ")"
 						+ "\n\tprint(y)"
-						+ "\n\twrite.csv(y,\"Result\\\\" + numBlock + "_output.csv\", row.names = FALSE)";
+						+ "\n\twrite.csv(y,\"Result\\\\" + _folderTemp + "\\" + numBlock + "_output.csv\", row.names = FALSE)";
 		
 		File f = new File("src\\" + _name);
 		if (f.exists()) {
@@ -54,6 +55,23 @@ public class MngrScript {
 		_out.close();
 		
 	}
+	
+	public static void deleteTempFiles() {
+		//get file from folder
+		File f = new File("Result\\" + _folderTemp);
+		File[] listOfFiles = f.listFiles();
+		
+		for (int i = 0; i < listOfFiles.length; i++) {
+			if (listOfFiles[i].isFile()) {
+				listOfFiles[i].delete();
+			}
+			else if (listOfFiles[i].isDirectory()) {
+				//System.out.println("Directory " + listOfFiles[i].getName());
+			}
+		}
+		System.out.println("Delete temp file success");
+	}
+	
 	
 	public static void convertRToArray(String in, Vector<Double> out) {
 		// String[] splitString = in.split("(\\w)*.(\\w)*e-(\\w)*");
@@ -82,7 +100,7 @@ public class MngrScript {
 		
 		for (int i = 0; i < MngrFiles._countBlock; i++) {
 			int numBlock = i + 1;
-			fileName = new FileReader("Result\\" + numBlock + "_output.csv");
+			fileName = new FileReader("Result\\" + _folderTemp + numBlock + "_output.csv");
 			reader = new BufferedReader(fileName);
 			
 			buffer = reader.readLine();

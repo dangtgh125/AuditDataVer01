@@ -3,8 +3,6 @@ import java.util.Vector;
 
 import javax.crypto.Cipher;
 
-import org.rosuda.JRI.Rengine;
-
 //import org.rosuda.JRI.Rengine;
 
 import java.security.GeneralSecurityException;
@@ -53,7 +51,6 @@ public class Source {
 		}*/
 		
 		ProbGen(300, 1, ProbVector);
-		
 		
 		/*-----------------------------------------------------------------------------------------*/
 		// @ProbVector is a list of probability
@@ -160,7 +157,7 @@ public class Source {
 		
 		MngrScript.convertRToArray(ProbVector);
 		
-		//
+		//MngrScript.deleteTempFiles();
 	}
 	
 	/*

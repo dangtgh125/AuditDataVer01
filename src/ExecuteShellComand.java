@@ -1,12 +1,14 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import org.rosuda.JRI.Rengine;
+
+import org.rosuda.JRI.*;
 
 public class ExecuteShellComand {
 
 	void executeCommand(String[] command) {
 		Rengine r = new Rengine(command, false, null);
 		r.eval(command[0]);
+		r.end();
 		System.out.println("complete R script!");
 	}
 	
