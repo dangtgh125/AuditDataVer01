@@ -289,22 +289,37 @@ public class MainGUI extends JFrame {
 				if (e.getSource() == _btnEncrypt) {
 					if (!_txtFilesBlock.getText().equals("")) {
 						_numFilesOfBlock = Integer.parseInt(_txtFilesBlock.getText());
-						
-						try {
-							
-							// Nên clear filelist sau mỗi lần thay đổi Input và Output
-							if (Source.fileList.size() != 0) {
+						String key = _txtKeyEncrypt.getText().toString();
+						if (!key.equals("")) {
+							try {
+								
+								int size = 0;
+								boolean success = false;
+								String filename = "";
+								// Nên clear filelist sau mỗi lần thay đổi Input và Output
+								if (Source.fileList.size() != 0) {
+									Source.fileList.clear();
+								}
+								Source.mgrFile.getFileList(MngrFiles.folderInput, Source.fileList);
+								size = Source.fileList.size();
+								for (int i = 0; i < size; i++) {
+									filename = Source.fileList.get(i);
+									_txtAreaEncrypt.append("Encrypting file " + filename + "...");
+									success = Source.Encrypt(filename, key);
+									if (success) {
+										_txtAreaEncrypt.append("Success\n");
+									}
+									else {
+										_txtAreaEncrypt.append("Fail\n");
+									}
+								}
+								_txtAreaEncrypt.append("Done!!!");
 								Source.fileList.clear();
+								
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
 							}
-							Source.mgrFile.getFileList(MngrFiles.folderInput, Source.fileList);
-						
-							Source.Encrypt("passwordtrongcau");
-							
-							Source.fileList.clear();
-							
-						} catch (Exception e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
 						}
 					}
 				}
@@ -316,22 +331,37 @@ public class MainGUI extends JFrame {
 	    		if (e.getSource() == _btnDecrypt) {
 	    			if (!_txtFilesBlock.getText().equals("")) {
 						_numFilesOfBlock = Integer.parseInt(_txtFilesBlock.getText());
-						
-						try {
-							
-							// Nên clear filelist sau mỗi lần thay đổi Input và Output
-							if (Source.fileList.size() != 0) {
-								Source.fileList.clear();
-							}
-							Source.mgrFile.getFileList(MngrFiles.folderInput, Source.fileList);
-						
-							Source.Decrypt("passwordtrongcau");
-							
+						String key = _txtKeyDecrypt.getText().toString();
+						if (!key.equals("")) {
+							try {
+								
+								int size = 0;
+								boolean success = false;
+								String filename = "";
+								// Nên clear filelist sau mỗi lần thay đổi Input và Output
+								if (Source.fileList.size() != 0) {
+									Source.fileList.clear();
+								}
+								Source.mgrFile.getFileList(MngrFiles.folderInput, Source.fileList);
+								size = Source.fileList.size();
+								for (int i = 0; i < size; i++) {
+									filename = Source.fileList.get(i);
+									_txtAreaDecrypt.append("Decrypting file " + filename + "...");
+									success = Source.Decrypt(filename, key);
+									if (success) {
+										_txtAreaDecrypt.append("Success\n");
+									}
+									else {
+										_txtAreaDecrypt.append("Fail\n");
+									}
+								}
+								_txtAreaDecrypt.append("Done!!!");
 							Source.fileList.clear();
 							
-						} catch (Exception e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 						}
 					}
 	    		}
