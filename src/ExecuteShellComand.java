@@ -1,12 +1,23 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import org.rosuda.JRI.Rengine;
+
+import org.rosuda.JRI.*;
 
 public class ExecuteShellComand {
-
+	static Rengine r;
 	void executeCommand(String[] command) {
-		Rengine r = new Rengine(command, false, null);
+		if (!Rengine.versionCheck()) {
+			System.err.println("** Version mismatch - Java files don't match library version.");
+			System.exit(1);
+		}
+		if(r == null)
+			r = new Rengine(command, false, null);
+		
+
 		r.eval(command[0]);
+		
+
+		
 		System.out.println("complete R script!");
 	}
 	

@@ -3,8 +3,6 @@ import java.util.Vector;
 
 import javax.crypto.Cipher;
 
-import org.rosuda.JRI.Rengine;
-
 //import org.rosuda.JRI.Rengine;
 
 import java.security.GeneralSecurityException;
@@ -53,7 +51,6 @@ public class Source {
 		}*/
 		
 		ProbGen(300, 1, ProbVector);
-		
 		
 		/*-----------------------------------------------------------------------------------------*/
 		// @ProbVector is a list of probability
@@ -119,7 +116,7 @@ public class Source {
 			
 			//compute MAC for final block
 			for(int j = 0; j<finalBlockSize; j++){
-				String tmp = computeHMACFile(fileList.get(numBlock*blockSize + j), ProbVector.get(j).toString());
+				String tmp = computeHMACFile(MngrFiles.folderInput + fileList.get(numBlock*blockSize + j), ProbVector.get(j).toString());
 				result.add(tmp);
 			}
 			MngrFiles.writeMACresult(result, numBlock+1, folderResult);
@@ -158,9 +155,9 @@ public class Source {
 
 		obj.executeCommand(command);
 		
-		MngrScript.convertRToArray(ProbVector);
+		MngrScript.convertRToArray(blockID, blockSize, ProbVector);
 		
-		//
+		//MngrScript.deleteTempFiles();
 	}
 	
 	/*
