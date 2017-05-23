@@ -93,23 +93,22 @@ public class MngrScript {
 	/*
 	 * Mở từng file chứa kết quả prob của từng block và đọc từng dòng vào
 	 */
-	public static void convertRToArray(Vector<Double> out) throws IOException {
+	public static void convertRToArray(int blockID, int blockSize, Vector<Double> out) throws IOException {
 		FileReader fileName = null;
 		BufferedReader reader = null;
 		String buffer = null;
 		
-		for (int i = 0; i < MngrFiles._countBlock; i++) {
-			int numBlock = i + 1;
-			fileName = new FileReader("Result\\" + _folderTemp + numBlock + "_output.csv");
-			reader = new BufferedReader(fileName);
-			
-			buffer = reader.readLine();
-			while ((buffer = reader.readLine()) != null) {
-				out.addElement(Double.parseDouble(buffer));
-			}
-			
-			fileName.close();
-			reader.close();
+		
+		//int numBlock = i + 1;
+		fileName = new FileReader("Result\\" + _folderTemp + blockID + "_output.csv");
+		reader = new BufferedReader(fileName);
+		
+		buffer = reader.readLine();
+		while ((buffer = reader.readLine()) != null) {
+			out.addElement(Double.parseDouble(buffer));
 		}
+		
+		fileName.close();
+		reader.close();
 	}
 }

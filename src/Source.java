@@ -116,7 +116,7 @@ public class Source {
 			
 			//compute MAC for final block
 			for(int j = 0; j<finalBlockSize; j++){
-				String tmp = computeHMACFile(fileList.get(numBlock*blockSize + j), ProbVector.get(j).toString());
+				String tmp = computeHMACFile(MngrFiles.folderInput + fileList.get(numBlock*blockSize + j), ProbVector.get(j).toString());
 				result.add(tmp);
 			}
 			MngrFiles.writeMACresult(result, numBlock+1, folderResult);
@@ -155,7 +155,7 @@ public class Source {
 
 		obj.executeCommand(command);
 		
-		MngrScript.convertRToArray(ProbVector);
+		MngrScript.convertRToArray(blockID, blockSize, ProbVector);
 		
 		//MngrScript.deleteTempFiles();
 	}
