@@ -1,6 +1,11 @@
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Vector;
 
 public class MngrFiles {
@@ -36,6 +41,27 @@ public class MngrFiles {
 			
 		}
 		return fileList.size();
+	}
+	
+	public static void readKeyFile(String keyFile, Vector<Double> ProbVector) throws FileNotFoundException{
+
+			InputStream in = new FileInputStream(keyFile);
+			InputStreamReader fisr = new InputStreamReader(in);
+			BufferedReader buffer = new BufferedReader(fisr);
+			String line;
+			try {
+				while ((line = buffer.readLine()) != null){
+					ProbVector.addElement(Double.parseDouble(line));
+					//System.out.println(line);
+				}
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 	}
 	
 	public void writeResultCsv(String filename) throws IOException {
