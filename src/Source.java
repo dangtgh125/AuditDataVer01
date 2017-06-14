@@ -50,7 +50,7 @@ public class Source {
 			System.out.println("Size = " + ProbVector.size());
 		}*/
 		
-		ProbGen(300, 1, ProbVector);
+		//ProbGen(300, 1, ProbVector);
 		
 		/*-----------------------------------------------------------------------------------------*/
 		// @ProbVector is a list of probability
@@ -80,24 +80,23 @@ public class Source {
 	 * @blockSize: number file on each block
 	 * @fileList : list of file in folderEncrypt
 	 * */
-	public static void computeHMACfileList(int numBlock, int blockSize, Vector<String> fileList, String folderResult) throws GeneralSecurityException, IOException{
-		//
+	public static void computeHMACfileList(int numBlock, int blockSize, Vector<String> fileList) throws GeneralSecurityException, IOException{
+		
+		int count = 1;
 		for(int i = 0; i<numBlock; i++){
-			//MAC result
-			Vector<String> result = new Vector<String>();
-			//ProbVector for each block
-			Vector<Double> ProbVector = new Vector<Double>();
 			//Generate ProbVector with number is blocksize
 			ProbGen(blockSize, i + 1, ProbVector);
 			
 			//compute MAC for each block
-			for(int j = 0; j<blockSize; j++){
-				String tmp = computeHMACFile(MngrFiles.folderInput + fileList.get(i*blockSize + j), ProbVector.get(j).toString());
-				result.add(tmp);
+			for(int j = 0; j < blockSize; j++){
+				String tmp = computeHMACFile(MngrFiles.folderInput + fileList.get(i * blockSize + j), ProbVector.get(j).toString());
+				MainGUI._txtMACArea.append("Hmac file " + count + ": " + tmp + "\n");
+				MAC.add(tmp);
+				count++;
 			}
-			MngrFiles.writeMACresult(result, i, folderResult);
-			MngrFiles.writeProbVectorResult(ProbVector, i, folderResult);
-			result.clear();
+			MngrFiles.writeMACresult(MAC, i + 1, "Result\\");
+			MngrFiles.writeProbVectorResult(ProbVector, i + 1, "Result\\");
+			MAC.clear();
 			ProbVector.clear();
 		}
 		
@@ -108,21 +107,23 @@ public class Source {
 			if (finalBlockSize == 0)
 				return;
 			
-			//MAC result
-			Vector<String> result = new Vector<String>();
-			//ProbVector for each block
-			Vector<Double> ProbVector = new Vector<Double>();
 			//Generate ProbVector with number is finalBlocksize
 			ProbGen(finalBlockSize, numBlock + 1, ProbVector);
 			
 			//compute MAC for final block
-			for(int j = 0; j<finalBlockSize; j++){
-				String tmp = computeHMACFile(MngrFiles.folderInput + fileList.get(numBlock*blockSize + j), ProbVector.get(j).toString());
-				result.add(tmp);
+			for(int j = 0; j < finalBlockSize; j++){
+				String tmp = computeHMACFile(MngrFiles.folderInput + fileList.get(numBlock * blockSize + j), ProbVector.get(j).toString());
+				MainGUI._txtMACArea.append("Hmac file " + count + ": " + tmp + "\n");
+				MAC.add(tmp);
+				count++;
 			}
-			MngrFiles.writeMACresult(result, numBlock+1, folderResult);
-			MngrFiles.writeProbVectorResult(ProbVector, numBlock+1, folderResult);
+			MngrFiles.writeMACresult(MAC, numBlock+1, "Result\\");
+			MngrFiles.writeProbVectorResult(ProbVector, numBlock + 1, "Result\\");
+			MAC.clear();
+			ProbVector.clear();
 		}
+		MngrScript.deleteTempFiles();
+		
 	}
 	
 	public static String computeHMACFile(String fileDirect, String keyPhrase) throws GeneralSecurityException, IOException{
@@ -157,8 +158,7 @@ public class Source {
 		obj.executeCommand(command);
 		
 		MngrScript.convertRToArray(blockID, blockSize, ProbVector);
-		
-		//MngrScript.deleteTempFiles();
+	
 	}
 	
 	/*
