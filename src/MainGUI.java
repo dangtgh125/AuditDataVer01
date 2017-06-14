@@ -11,6 +11,7 @@ import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.Document;
@@ -38,8 +39,8 @@ public class MainGUI extends JFrame {
 	private JTextField _txtfieldInput, _txtfieldOutput, _txtFilesBlock;
 	private JButton _btnOpenInput, _btnOpenOutput, _btnEncrypt, _btnDecrypt, _btnCancel;
 	private JButton _btnRun, _btn_Browse_Key_ProbVector, _btnComputeConfidentInterval;
-	private JTextField _txtKeyEncrypt;
-	private JTextField _txtKeyDecrypt;
+	private JPasswordField _pwKeyEncrypt;
+	private JPasswordField _pwKeyDecrypt;
 	public static JTextArea _txtAreaEncrypt, _txtAreaDecrypt;
 	private JScrollPane _scrpAreaEncrypt, _scrpAreaDecrype;
 	private JTextField _txtField_ProbVector_Location;
@@ -146,10 +147,10 @@ public class MainGUI extends JFrame {
 		lblKey.setBounds(10, 228, 27, 14);
 		panelEncrypt.add(lblKey);
 		
-		_txtKeyEncrypt = new JTextField();
-		_txtKeyEncrypt.setBounds(37, 228, 102, 20);
-		panelEncrypt.add(_txtKeyEncrypt);
-		_txtKeyEncrypt.setColumns(10);
+		_pwKeyEncrypt = new JPasswordField();
+		_pwKeyEncrypt.setBounds(37, 228, 102, 20);
+		panelEncrypt.add(_pwKeyEncrypt);
+		_pwKeyEncrypt.setColumns(10);
 		
 		JScrollBar scrollBar = new JScrollBar();
 		scrollBar.setBounds(442, 11, 17, 206);
@@ -170,10 +171,10 @@ public class MainGUI extends JFrame {
 	    label.setBounds(10, 231, 27, 14);
 	    panelDecrypt.add(label);
 	    
-	    _txtKeyDecrypt = new JTextField();
-	    _txtKeyDecrypt.setColumns(10);
-	    _txtKeyDecrypt.setBounds(37, 231, 102, 20);
-	    panelDecrypt.add(_txtKeyDecrypt);
+	    _pwKeyDecrypt = new JPasswordField();
+	    _pwKeyDecrypt.setColumns(10);
+	    _pwKeyDecrypt.setBounds(37, 231, 102, 20);
+	    panelDecrypt.add(_pwKeyDecrypt);
 	    
 	    
 	    tabbedPane.addTab("Hmac", null, panelHmac, "click to show panel 3");
@@ -271,18 +272,18 @@ public class MainGUI extends JFrame {
 	
 	private void catchEvent() {
 		
-		_txtKeyEncrypt.addKeyListener(new KeyAdapter() {
+		_pwKeyEncrypt.addKeyListener(new KeyAdapter() {
 			public void keyTyped(KeyEvent e) {
-				if (_txtKeyEncrypt.getText().length() >= 16) {
+				if (_pwKeyEncrypt.getPassword().length >= 16) {
 					getToolkit().beep();
 		            e.consume();
 				}
 			}
 		});
 		
-		_txtKeyDecrypt.addKeyListener(new KeyAdapter() {
+		_pwKeyDecrypt.addKeyListener(new KeyAdapter() {
 			public void keyTyped(KeyEvent e) {
-				if (_txtKeyDecrypt.getText().length() >= 16) {
+				if (_pwKeyDecrypt.getPassword().length >= 16) {
 					getToolkit().beep();
 					e.consume();
 				}
@@ -323,7 +324,7 @@ public class MainGUI extends JFrame {
 				if (e.getSource() == _btnEncrypt) {
 					if (!_txtFilesBlock.getText().equals("")) {
 						_numFilesOfBlock = Integer.parseInt(_txtFilesBlock.getText());
-						String key = _txtKeyEncrypt.getText().toString();
+						String key = new String(_pwKeyEncrypt.getPassword());
 						if (!key.equals("")) {
 							try {
 								
@@ -365,7 +366,7 @@ public class MainGUI extends JFrame {
 	    		if (e.getSource() == _btnDecrypt) {
 	    			if (!_txtFilesBlock.getText().equals("")) {
 						_numFilesOfBlock = Integer.parseInt(_txtFilesBlock.getText());
-						String key = _txtKeyDecrypt.getText().toString();
+						String key = new String(_pwKeyDecrypt.getPassword());
 						if (!key.equals("")) {
 							try {
 								
