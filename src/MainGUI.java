@@ -41,8 +41,8 @@ public class MainGUI extends JFrame {
 	private JButton _btnRun, _btn_Browse_Key_ProbVector, _btnComputeConfidentInterval;
 	private JPasswordField _pwKeyEncrypt;
 	private JPasswordField _pwKeyDecrypt;
-	public static JTextArea _txtAreaEncrypt, _txtAreaDecrypt;
-	private JScrollPane _scrpAreaEncrypt, _scrpAreaDecrype;
+	public static JTextArea _txtAreaEncrypt, _txtAreaDecrypt, _txtMACArea;
+	private JScrollPane _scrpAreaEncrypt, _scrpAreaDecrype, _scrpAreaMac;
 	private JTextField _txtField_ProbVector_Location;
 	private JTextField _txtFiled_BlockID;
 	private JTextField _txtField_BlockSize;
@@ -183,9 +183,11 @@ public class MainGUI extends JFrame {
 	    lblMACList.setBounds(50, 47, 56, 16);
 	    panelHmac.add(lblMACList);
 	    
-	    JTextArea _txtMACArea = new JTextArea();
-	    _txtMACArea.setBounds(112, 47, 345, 178);
-	    panelHmac.add(_txtMACArea);
+	    _txtMACArea = new JTextArea();
+	    _txtMACArea.setEditable(false);
+	    _scrpAreaMac = new JScrollPane(_txtMACArea);
+	    _scrpAreaMac.setBounds(112, 47, 345, 178);
+	    panelHmac.add(_scrpAreaMac);
 	    
 	    _btnRun = new JButton("Run");
 	    _btnRun.setBounds(360, 238, 97, 25);
@@ -325,6 +327,7 @@ public class MainGUI extends JFrame {
 					if (!_txtFilesBlock.getText().equals("")) {
 						_numFilesOfBlock = Integer.parseInt(_txtFilesBlock.getText());
 						String key = new String(_pwKeyEncrypt.getPassword());
+						_txtAreaEncrypt.setText("");;
 						if (!key.equals("")) {
 							try {
 								
@@ -367,6 +370,7 @@ public class MainGUI extends JFrame {
 	    			if (!_txtFilesBlock.getText().equals("")) {
 						_numFilesOfBlock = Integer.parseInt(_txtFilesBlock.getText());
 						String key = new String(_pwKeyDecrypt.getPassword());
+						_txtAreaDecrypt.setText("");
 						if (!key.equals("")) {
 							try {
 								
@@ -403,12 +407,14 @@ public class MainGUI extends JFrame {
 	    	}
 	    });
 	    
+		//_txtMACArea
 	    _btnRun.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
 	    		if (e.getSource() == _btnRun) {
 	    			if (!_txtFilesBlock.getText().equals("")) {
 	    				_numFilesOfBlock = Integer.parseInt(_txtFilesBlock.getText());
 			    		MngrFiles._countBlock = 0;
+			    		_txtMACArea.setText("");
 			    		Source.mgrFile.getFileList(MngrFiles.folderInput, Source.fileList);
 			    		System.out.println("count block:" + MngrFiles._countBlock);
 			    		System.out.println(MngrFiles.folderInput);
@@ -416,12 +422,13 @@ public class MainGUI extends JFrame {
 			    		
 			    		try {
 			    			// numBlock is countBlock, blockSize is numFilesOfBlock
-							Source.computeHMACfileList(MngrFiles._countBlock, _numFilesOfBlock, Source.fileList , MngrFiles.folderOutput);
+							Source.computeHMACfileList(MngrFiles._countBlock, _numFilesOfBlock, Source.fileList);
 							Source.fileList.clear();
 						} catch (GeneralSecurityException | IOException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
+			    		_txtMACArea.append("Done!!!");
 	    			}
 	    		}
 	    	}
