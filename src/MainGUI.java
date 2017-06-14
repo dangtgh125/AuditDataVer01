@@ -36,8 +36,8 @@ public class MainGUI extends JFrame {
 	private String[] confidentValArr = {"80%", "90%", "95%", "98%", "99%"};
 	private JPanel contentPanel;
 	private JTextField _txtfieldInput, _txtfieldOutput, _txtFilesBlock;
-	private JButton _btnOpenInput, _btnOpenOutput, _btnEncrypt, _btnDecrypt;
-	private JButton _btnExportReport, _btnRun, _btn_Browse_Key_ProbVector, _btnComputeConfidentInterval;
+	private JButton _btnOpenInput, _btnOpenOutput, _btnEncrypt, _btnDecrypt, _btnCancel;
+	private JButton _btnRun, _btn_Browse_Key_ProbVector, _btnComputeConfidentInterval;
 	private JTextField _txtKeyEncrypt;
 	private JTextField _txtKeyDecrypt;
 	public static JTextArea _txtAreaEncrypt, _txtAreaDecrypt;
@@ -75,6 +75,7 @@ public class MainGUI extends JFrame {
 	/**
 	 * Initialize the contents of the frame.
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void initialize() {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -245,7 +246,7 @@ public class MainGUI extends JFrame {
 	    _txtField_BlockSize.setBounds(301, 87, 116, 22);
 	    panelVerify.add(_txtField_BlockSize);
 	    
-	    _combobox_confidentValue = new JComboBox<String>(confidentValArr);
+	    _combobox_confidentValue = new JComboBox(confidentValArr);
 	    _combobox_confidentValue.setBounds(135, 241, 116, 22);
 	    panelVerify.add(_combobox_confidentValue);
 
@@ -253,7 +254,6 @@ public class MainGUI extends JFrame {
 	    JLabel lblConfidentValue = new JLabel("Confident Value");
 	    lblConfidentValue.setBounds(23, 244, 100, 16);
 	    panelVerify.add(lblConfidentValue);
-	    //
 	    
 	    _txtFilesBlock = new JTextField();
 	    _txtFilesBlock.setBounds(434, 92, 50, 20);
@@ -264,11 +264,7 @@ public class MainGUI extends JFrame {
 	    lblAllFile.setBounds(361, 95, 71, 14);
 	    contentPanel.add(lblAllFile);
 	    
-	    _btnExportReport = new JButton("Export File");
-	    _btnExportReport.setBounds(253, 434, 95, 33);
-	    contentPanel.add(_btnExportReport);
-	    
-	    JButton _btnCancel = new JButton("Cancel");
+	    _btnCancel = new JButton("Cancel");
 	    _btnCancel.setBounds(370, 434, 95, 33);
 	    contentPanel.add(_btnCancel);
 	}
@@ -405,28 +401,6 @@ public class MainGUI extends JFrame {
 	    		}
 	    	}
 	    });
-		
-	    _btnExportReport.addActionListener(new ActionListener() {
-	    	public void actionPerformed(ActionEvent arg0) {
-	    		try {
-		    		if(Source.fileList.size() == 0) {
-		    			infoBox("File list is empty", "Warning");
-		    		}
-		    		else if (Source.MAC.size() == 0) {
-		    			infoBox("MAC is empty", "Warning");
-		    		}
-		    		else if (Source.ProbVector.size() == 0) {
-		    			infoBox("ProbVector is empty", "Warning");
-		    		}
-		    		else {
-		    			Source.mgrFile.writeResultCsv("Result");
-		    		}
-	    		} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	    	}
-	    });
 	    
 	    _btnRun.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
@@ -471,6 +445,7 @@ public class MainGUI extends JFrame {
 	    		
 	    	}
 	    });
+	    
 	    _combobox_confidentValue.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
 	    		String select = (String) _combobox_confidentValue.getSelectedItem();
@@ -493,6 +468,7 @@ public class MainGUI extends JFrame {
 	    });
 	    _btnComputeConfidentInterval.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
+	    		
 	    		Vector<Double> ProbVector = new Vector<Double>();
 	    		String keyFile = _txtField_ProbVector_Location.getText();
 	    		//show chỉ số blockID và số lương xs trong file 
@@ -524,8 +500,22 @@ public class MainGUI extends JFrame {
 		        for (Double i : ProbVector){
 		        	System.out.println(i);
 		        }
+		        
 	    	}
 	    });
+	    
+	    _btnCancel.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				if (e.getSource() == _btnCancel) {
+					setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+					System.exit(0);
+				}
+				
+			}
+		});
 	}
 	
 	public static void infoBox(String infoMessage, String titleBar) throws Exception
