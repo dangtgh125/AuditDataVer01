@@ -4,12 +4,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.JLabel;
@@ -23,19 +26,27 @@ import javax.swing.JTextArea;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import java.awt.Label;
+import javax.swing.JComboBox;
 
 @SuppressWarnings("serial")
 public class MainGUI extends JFrame {
 
 	public static int _numFilesOfBlock;
+	private double confidenVal = 0.1;
+	private String[] confidentValArr = {"80%", "90%", "95%", "98%", "99%"};
 	private JPanel contentPanel;
 	private JTextField _txtfieldInput, _txtfieldOutput, _txtFilesBlock;
-	private JButton _btnOpenInput, _btnOpenOutput, _btnEncrypt, _btnDecrypt, _btnExportReport, _btnRun;
+	private JButton _btnOpenInput, _btnOpenOutput, _btnEncrypt, _btnDecrypt;
+	private JButton _btnExportReport, _btnRun, _btn_Browse_Key_ProbVector, _btnComputeConfidentInterval;
 	private JTextField _txtKeyEncrypt;
 	private JTextField _txtKeyDecrypt;
 	public static JTextArea _txtAreaEncrypt, _txtAreaDecrypt;
 	private JScrollPane _scrpAreaEncrypt, _scrpAreaDecrype;
 	private JTextField _txtField_ProbVector_Location;
+	private JTextField _txtFiled_BlockID;
+	private JTextField _txtField_BlockSize;
+	private JTextArea _txtStartPoint, _txtEndPoint;
+	private JComboBox<String> _combobox_confidentValue;
 
 	/**
 	 * Launch the application.
@@ -180,11 +191,11 @@ public class MainGUI extends JFrame {
 	    //
 	    tabbedPane.addTab("Verify", null, panelVerify, "click to show panel 3");
 	    
-	    JButton _btn_Browse_Key_ProbVector = new JButton("Browse");
+	    _btn_Browse_Key_ProbVector = new JButton("Browse");
 	    _btn_Browse_Key_ProbVector.setBounds(429, 13, 28, 25);
 	    panelVerify.add(_btn_Browse_Key_ProbVector);
 	    
-	    JButton _btnComputeConfidentInterval = new JButton("Compute Confident Interval");
+	    _btnComputeConfidentInterval = new JButton("Compute Confident Interval");
 	    _btnComputeConfidentInterval.setBounds(268, 240, 189, 25);
 	    panelVerify.add(_btnComputeConfidentInterval);
 	    
@@ -199,22 +210,49 @@ public class MainGUI extends JFrame {
 	    panelVerify.add(lblProbvectorLocation);
 	    
 	    JLabel lblEncPoint = new JLabel("End Point");
-	    lblEncPoint.setBounds(63, 136, 60, 16);
+	    lblEncPoint.setBounds(63, 205, 60, 16);
 	    panelVerify.add(lblEncPoint);
 	    
 	    JLabel lblStartPoint = new JLabel("Start Point");
-	    lblStartPoint.setBounds(63, 46, 60, 16);
+	    lblStartPoint.setBounds(63, 148, 60, 16);
 	    panelVerify.add(lblStartPoint);
 	    
-	    JTextArea _txtStartPoint = new JTextArea();
+	    _txtStartPoint = new JTextArea();
 	    _txtStartPoint.setEditable(false);
-	    _txtStartPoint.setBounds(135, 46, 282, 74);
+	    _txtStartPoint.setBounds(135, 145, 282, 22);
 	    panelVerify.add(_txtStartPoint);
 	    
-	    JTextArea _txtEndPoint = new JTextArea();
+	    _txtEndPoint = new JTextArea();
 	    _txtEndPoint.setEditable(false);
-	    _txtEndPoint.setBounds(135, 133, 282, 74);
+	    _txtEndPoint.setBounds(135, 202, 282, 25);
 	    panelVerify.add(_txtEndPoint);
+	    
+	    JLabel _lblBlockID = new JLabel("BlockID");
+	    _lblBlockID.setBounds(135, 58, 60, 16);
+	    panelVerify.add(_lblBlockID);
+	    
+	    JLabel lblBlocksize = new JLabel("BlockSize");
+	    lblBlocksize.setBounds(299, 58, 60, 16);
+	    panelVerify.add(lblBlocksize);
+	    
+	    _txtFiled_BlockID = new JTextField();
+	    _txtFiled_BlockID.setBounds(135, 87, 116, 22);
+	    panelVerify.add(_txtFiled_BlockID);
+	    _txtFiled_BlockID.setColumns(10);
+	    
+	    _txtField_BlockSize = new JTextField();
+	    _txtField_BlockSize.setColumns(10);
+	    _txtField_BlockSize.setBounds(301, 87, 116, 22);
+	    panelVerify.add(_txtField_BlockSize);
+	    
+	    _combobox_confidentValue = new JComboBox<String>(confidentValArr);
+	    _combobox_confidentValue.setBounds(135, 241, 116, 22);
+	    panelVerify.add(_combobox_confidentValue);
+
+	    
+	    JLabel lblConfidentValue = new JLabel("Confident Value");
+	    lblConfidentValue.setBounds(23, 244, 100, 16);
+	    panelVerify.add(lblConfidentValue);
 	    //
 	    
 	    _txtFilesBlock = new JTextField();
@@ -414,6 +452,80 @@ public class MainGUI extends JFrame {
 	    	}
 	    });
 	   
+	    final JFileChooser chooser = new JFileChooser();
+	    FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV file", "csv");
+	    chooser.setFileFilter(filter);
+	    _btn_Browse_Key_ProbVector.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent e) {
+	    		//choose file from filechooser and assign to
+	    		String keyFile = "";
+	    		//Vector<Double> ProbVector = new Vector<Double>();
+	    		if (e.getSource() == _btn_Browse_Key_ProbVector) {
+			        int returnVal = chooser.showOpenDialog(MainGUI.this);
+			        
+			        if (returnVal == JFileChooser.APPROVE_OPTION) {
+			        	keyFile = chooser.getSelectedFile().toString();
+			            _txtField_ProbVector_Location.setText(keyFile);
+			        }
+			   }
+	    		
+	    	}
+	    });
+	    _combobox_confidentValue.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent e) {
+	    		String select = (String) _combobox_confidentValue.getSelectedItem();
+	    		if(select == "80%"){
+	    			confidenVal = 0.1;
+	    		}
+	    		else if(select == "90%"){
+	    			confidenVal = 0.05;
+	    		}
+	    		else if(select == "95%"){
+	    			confidenVal = 0.025;
+	    		}
+	    		else if(select == "98%"){
+	    			confidenVal = 0.01;
+	    		}
+	    		else if (select == "99%"){
+	    			confidenVal = 0.005;
+	    		}
+	    	}
+	    });
+	    _btnComputeConfidentInterval.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent e) {
+	    		Vector<Double> ProbVector = new Vector<Double>();
+	    		String keyFile = _txtField_ProbVector_Location.getText();
+	    		//show chỉ số blockID và số lương xs trong file 
+		        try {
+					MngrFiles.readKeyFile(keyFile, ProbVector);
+					_txtFiled_BlockID.setText(ProbVector.get(0).toString());
+					_txtField_BlockSize.setText(ProbVector.get(1).toString());
+					ProbVector.removeElementAt(0);
+					ProbVector.removeElementAt(0);
+					
+					Prob_Handle prh = new Prob_Handle(ProbVector);
+					double mean = prh.getMean();
+					double sd = prh.getSD();
+					double a = mean - sd*prh.getZ(confidenVal);
+					double b = mean + sd*prh.getZ(confidenVal);
+					
+					System.out.println("mean = " + mean);
+					System.out.println("sd = " + sd);
+					System.out.println("a = " + a);
+					System.out.println("b = " + b);
+					
+					_txtStartPoint.setText(Integer.toString((int)a));
+					_txtEndPoint.setText(Integer.toString((int)b+1));
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					JOptionPane.showMessageDialog(null, "File Not Found!");
+					e1.printStackTrace();
+				}
+		        for (Double i : ProbVector){
+		        	System.out.println(i);
+		        }
+	    	}
+	    });
 	}
 	
 	public static void infoBox(String infoMessage, String titleBar) throws Exception
