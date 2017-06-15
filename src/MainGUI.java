@@ -7,7 +7,6 @@ import java.awt.event.KeyEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -38,7 +37,7 @@ public class MainGUI extends JFrame {
 	private JPanel contentPanel;
 	private JTextField _txtfieldInput, _txtfieldOutput, _txtFilesBlock;
 	private JButton _btnOpenInput, _btnOpenOutput, _btnEncrypt, _btnDecrypt, _btnCancel;
-	private JButton _btnRun, _btn_Browse_Key_ProbVector, _btnComputeConfidentInterval;
+	private JButton _btnRun, _btn_Browse_Key_ProbVector, _btnComputeConfidentInterval, _btnVerify, _btn_Browse_Mac;
 	private JPasswordField _pwKeyEncrypt;
 	private JPasswordField _pwKeyDecrypt;
 	public static JTextArea _txtAreaEncrypt, _txtAreaDecrypt, _txtMACArea;
@@ -48,6 +47,7 @@ public class MainGUI extends JFrame {
 	private JTextField _txtField_BlockSize;
 	private JTextArea _txtStartPoint, _txtEndPoint;
 	private JComboBox<String> _combobox_confidentValue;
+	private JTextField _txtField_Max_Location;
 
 	/**
 	 * Launch the application.
@@ -218,35 +218,33 @@ public class MainGUI extends JFrame {
 	    panelVerify.add(lblEncPoint);
 	    
 	    JLabel lblStartPoint = new JLabel("Start Point");
-	    lblStartPoint.setBounds(63, 148, 60, 16);
+	    lblStartPoint.setBounds(63, 167, 60, 16);
 	    panelVerify.add(lblStartPoint);
 	    
 	    _txtStartPoint = new JTextArea();
-	    _txtStartPoint.setEditable(false);
-	    _txtStartPoint.setBounds(135, 145, 282, 22);
+	    _txtStartPoint.setBounds(135, 164, 116, 22);
 	    panelVerify.add(_txtStartPoint);
 	    
 	    _txtEndPoint = new JTextArea();
-	    _txtEndPoint.setEditable(false);
-	    _txtEndPoint.setBounds(135, 202, 282, 25);
+	    _txtEndPoint.setBounds(135, 202, 116, 25);
 	    panelVerify.add(_txtEndPoint);
 	    
 	    JLabel _lblBlockID = new JLabel("BlockID");
-	    _lblBlockID.setBounds(135, 58, 60, 16);
+	    _lblBlockID.setBounds(135, 102, 60, 16);
 	    panelVerify.add(_lblBlockID);
 	    
 	    JLabel lblBlocksize = new JLabel("BlockSize");
-	    lblBlocksize.setBounds(299, 58, 60, 16);
+	    lblBlocksize.setBounds(299, 102, 60, 16);
 	    panelVerify.add(lblBlocksize);
 	    
 	    _txtFiled_BlockID = new JTextField();
-	    _txtFiled_BlockID.setBounds(135, 87, 116, 22);
+	    _txtFiled_BlockID.setBounds(135, 131, 116, 22);
 	    panelVerify.add(_txtFiled_BlockID);
 	    _txtFiled_BlockID.setColumns(10);
 	    
 	    _txtField_BlockSize = new JTextField();
 	    _txtField_BlockSize.setColumns(10);
-	    _txtField_BlockSize.setBounds(301, 87, 116, 22);
+	    _txtField_BlockSize.setBounds(301, 131, 116, 22);
 	    panelVerify.add(_txtField_BlockSize);
 	    
 	    _combobox_confidentValue = new JComboBox(confidentValArr);
@@ -257,6 +255,24 @@ public class MainGUI extends JFrame {
 	    JLabel lblConfidentValue = new JLabel("Confident Value");
 	    lblConfidentValue.setBounds(23, 244, 100, 16);
 	    panelVerify.add(lblConfidentValue);
+	    
+	    JLabel lblMacLocation = new JLabel("Mac Location");
+	    lblMacLocation.setBounds(10, 53, 122, 16);
+	    panelVerify.add(lblMacLocation);
+	    
+	    _txtField_Max_Location = new JTextField();
+	    _txtField_Max_Location.setEditable(false);
+	    _txtField_Max_Location.setColumns(10);
+	    _txtField_Max_Location.setBounds(135, 50, 282, 22);
+	    panelVerify.add(_txtField_Max_Location);
+	    
+	    _btn_Browse_Mac = new JButton("Browse");
+	    _btn_Browse_Mac.setBounds(429, 49, 28, 25);
+	    panelVerify.add(_btn_Browse_Mac);
+	    
+	    _btnVerify = new JButton("Verify");
+	    _btnVerify.setBounds(368, 189, 89, 40);
+	    panelVerify.add(_btnVerify);
 	    
 	    _txtFilesBlock = new JTextField();
 	    _txtFilesBlock.setBounds(434, 92, 50, 20);
@@ -332,6 +348,7 @@ public class MainGUI extends JFrame {
 							try {
 								
 								int size = 0;
+								int countFile = 1, blockID = 1;
 								boolean success = false;
 								String filename = "";
 								// Nên clear filelist sau mỗi lần thay đổi Input và Output
@@ -343,12 +360,17 @@ public class MainGUI extends JFrame {
 								for (int i = 0; i < size; i++) {
 									filename = Source.fileList.get(i);
 									_txtAreaEncrypt.append("Encrypting file " + filename + "...");
-									success = Source.Encrypt(filename, key);
+									success = Source.Encrypt(filename, key, blockID, countFile);
 									if (success) {
 										_txtAreaEncrypt.append("Success\n");
 									}
 									else {
 										_txtAreaEncrypt.append("Fail\n");
+									}
+									countFile++;
+									if (countFile > _numFilesOfBlock) {
+										countFile = 1;
+										blockID++;
 									}
 								}
 								_txtAreaEncrypt.append("Done!!!");
@@ -407,22 +429,21 @@ public class MainGUI extends JFrame {
 	    	}
 	    });
 	    
-		//_txtMACArea
 	    _btnRun.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
 	    		if (e.getSource() == _btnRun) {
 	    			if (!_txtFilesBlock.getText().equals("")) {
 	    				_numFilesOfBlock = Integer.parseInt(_txtFilesBlock.getText());
-			    		MngrFiles._countBlock = 0;
+			    		MngrFiles._numBlock = 0;
 			    		_txtMACArea.setText("");
 			    		Source.mgrFile.getFileList(MngrFiles.folderInput, Source.fileList);
-			    		System.out.println("count block:" + MngrFiles._countBlock);
+			    		System.out.println("count block:" + MngrFiles._numBlock);
 			    		System.out.println(MngrFiles.folderInput);
 			    		System.out.println(MngrFiles.folderOutput);
 			    		
 			    		try {
 			    			// numBlock is countBlock, blockSize is numFilesOfBlock
-							Source.computeHMACfileList(MngrFiles._countBlock, _numFilesOfBlock, Source.fileList);
+							Source.computeHMACfileList(MngrFiles._numBlock, _numFilesOfBlock, Source.fileList);
 							Source.fileList.clear();
 						} catch (GeneralSecurityException | IOException e1) {
 							// TODO Auto-generated catch block
@@ -454,6 +475,21 @@ public class MainGUI extends JFrame {
 	    	}
 	    });
 	    
+	    _btn_Browse_Mac.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				String keyFile = "";
+				if (e.getSource() == _btn_Browse_Mac) {
+					int returnVal = chooser.showOpenDialog(MainGUI.this);
+					
+					if (returnVal == JFileChooser.APPROVE_OPTION) {
+						keyFile = chooser.getSelectedFile().toString();
+						_txtField_Max_Location.setText(keyFile);
+					}
+				}
+			}
+		});
+	    
 	    _combobox_confidentValue.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
 	    		String select = (String) _combobox_confidentValue.getSelectedItem();
@@ -474,20 +510,23 @@ public class MainGUI extends JFrame {
 	    		}
 	    	}
 	    });
+	    
 	    _btnComputeConfidentInterval.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
-	    		
-	    		Vector<Double> ProbVector = new Vector<Double>();
+
+	    		Source.ProbVector.clear();
+	    		_txtStartPoint.setText("");
+	    		_txtEndPoint.setText("");
 	    		String keyFile = _txtField_ProbVector_Location.getText();
 	    		//show chỉ số blockID và số lương xs trong file 
 		        try {
-					MngrFiles.readKeyFile(keyFile, ProbVector);
-					_txtFiled_BlockID.setText(ProbVector.get(0).toString());
-					_txtField_BlockSize.setText(ProbVector.get(1).toString());
-					ProbVector.removeElementAt(0);
-					ProbVector.removeElementAt(0);
+					MngrFiles.readKeyFile(keyFile, Source.ProbVector);
+					_txtFiled_BlockID.setText(Source.ProbVector.get(0).toString());
+					_txtField_BlockSize.setText(Source.ProbVector.get(1).toString());
+					Source.ProbVector.removeElementAt(0);
+					Source.ProbVector.removeElementAt(0);
 					
-					Prob_Handle prh = new Prob_Handle(ProbVector);
+					Prob_Handle prh = new Prob_Handle(Source.ProbVector);
 					double mean = prh.getMean();
 					double sd = prh.getSD();
 					double a = mean - sd*prh.getZ(confidenVal);
@@ -505,12 +544,56 @@ public class MainGUI extends JFrame {
 					JOptionPane.showMessageDialog(null, "File Not Found!");
 					e1.printStackTrace();
 				}
-		        for (Double i : ProbVector){
+		        for (Double i : Source.ProbVector){
 		        	System.out.println(i);
 		        }
 		        
 	    	}
 	    });
+	    
+	    _btnVerify.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				Source.MAC.clear();
+				String macFile = _txtField_Max_Location.getText();
+				int startPoint = 0, endPoint = 0;
+				//show chỉ số blockID và số lương xs trong file 
+				try {
+					
+					MngrFiles.readMacFile(macFile, Source.MAC);
+					_txtFiled_BlockID.setText(Source.MAC.get(0).toString());
+					_txtField_BlockSize.setText(Source.MAC.get(1).toString());
+					endPoint = Integer.parseInt(_txtField_BlockSize.getText());
+					Source.MAC.removeElementAt(0);
+					Source.MAC.removeElementAt(0);
+					
+					if (!_txtStartPoint.getText().equals("") && !_txtEndPoint.getText().equals("")) {
+						startPoint = Integer.parseInt(_txtStartPoint.getText());
+						endPoint = Integer.parseInt(_txtEndPoint.getText());
+					}
+					
+					if (!Source.Verify(_txtfieldInput.getText(), startPoint, endPoint)) {
+						JOptionPane.showMessageDialog(null, "Verify Fail!");
+					}
+					else
+						JOptionPane.showMessageDialog(null, "Verify Success");
+					
+					Source.MAC.clear();
+					Source.ProbVector.clear();
+					
+				} catch (FileNotFoundException e1) {
+					
+					JOptionPane.showMessageDialog(null, "File Not Found!");
+					e1.printStackTrace();
+					
+				} catch (GeneralSecurityException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				
+			}
+		});
 	    
 	    _btnCancel.addActionListener(new ActionListener() {
 			
