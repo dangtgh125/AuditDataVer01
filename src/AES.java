@@ -2,11 +2,14 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.*;
 import java.security.*;
+import java.security.spec.KeySpec;
+
 import javax.crypto.spec.*;
 import javax.crypto.*;
 
 public class AES {
 	private static final int IV_LENGTH=16;
+	int salt = 0x5c5c5c5c;
 
 	/* A helper - to reuse the stream code below - if a small String is to be encrypted */
 	public static byte[] encrypt(String plainText, String password) throws Exception {
@@ -27,16 +30,22 @@ public class AES {
 
 
 	public static void processEncrypt(InputStream in, OutputStream out, String password) throws Exception{
-
+		
 		SecureRandom r = new SecureRandom();
 		byte[] iv = new byte[IV_LENGTH];
 		r.nextBytes(iv);
 		out.write(iv); //write IV as a prefix
 		out.flush();
+
+		KeySpec spec = new PBEKeySpec(password.toCharArray(), iv, 65536, 128); // AES-256
+		SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+		byte[] key = f.generateSecret(spec).getEncoded();
+		
+
 		//System.out.println(">>>>>>>>written"+Arrays.toString(iv));
 
 		Cipher cipher = Cipher.getInstance("AES/CFB8/PKCS5Padding"); //"DES/ECB/PKCS5Padding";"AES/CBC/PKCS5Padding"
-		SecretKeySpec keySpec = new SecretKeySpec(password.getBytes(), "AES");
+		SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);    	
 
@@ -51,13 +60,19 @@ public class AES {
 
 
 	public static void processDecrypt(InputStream in, OutputStream out, String password) throws Exception{
-
+		
 		byte[] iv = new byte[IV_LENGTH];
 		in.read(iv);
+
+		KeySpec spec = new PBEKeySpec(password.toCharArray(), iv, 65536, 128); // AES-256
+		SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+		byte[] key = f.generateSecret(spec).getEncoded();
+		
+
 		//System.out.println(">>>>>>>>red"+Arrays.toString(iv));
 
 		Cipher cipher = Cipher.getInstance("AES/CFB8/PKCS5Padding"); //"DES/ECB/PKCS5Padding";"AES/CBC/PKCS5Padding"
-		SecretKeySpec keySpec = new SecretKeySpec(password.getBytes(), "AES");
+		SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
 
