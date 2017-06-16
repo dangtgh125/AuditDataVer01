@@ -83,19 +83,26 @@ public class Source {
 	public static void computeHMACfileList(int numBlock, int blockSize, Vector<String> fileList) throws GeneralSecurityException, IOException{
 		
 		int count = 1;
-		for(int i = 0; i<numBlock; i++){
+		Vector<String> strProbVector = new Vector<String>();
+		for(int i = 0; i < numBlock; i++){
 			//Generate ProbVector with number is blocksize
+			
 			ProbGen(blockSize, i + 1, ProbVector);
+			MngrFiles.writeProbVectorResult(ProbVector, i + 1, "Result\\");
+			ProbVector.clear();
+			int temp = i + 1;
+			MngrFiles.readKeyFileWithString("Result\\" + temp + "_ProbVectorResult.csv", strProbVector);
 			
 			//compute MAC for each block
 			for(int j = 0; j < blockSize; j++){
-				String tmp = computeHMACFile(MngrFiles.folderInput + fileList.get(i * blockSize + j), ProbVector.get(j).toString());
+				String tmp = computeHMACFile(MngrFiles.folderInput + fileList.get(i * blockSize + j), strProbVector.get(j));
+				System.out.println("prob" + j + ": " + strProbVector.get(j));
 				MainGUI._txtMACArea.append("Hmac file " + count + ": " + tmp + "\n");
 				MAC.add(tmp);
 				count++;
 			}
 			MngrFiles.writeMACresult(MAC, i + 1, "Result\\");
-			MngrFiles.writeProbVectorResult(ProbVector, i + 1, "Result\\");
+			
 			MAC.clear();
 			ProbVector.clear();
 		}
@@ -113,6 +120,7 @@ public class Source {
 			//compute MAC for final block
 			for(int j = 0; j < finalBlockSize; j++){
 				String tmp = computeHMACFile(MngrFiles.folderInput + fileList.get(numBlock * blockSize + j), ProbVector.get(j).toString());
+				System.out.println("End prob" + j + ": " + ProbVector.get(j).toString());
 				MainGUI._txtMACArea.append("Hmac file " + count + ": " + tmp + "\n");
 				MAC.add(tmp);
 				count++;
@@ -147,6 +155,8 @@ public class Source {
 	/*
 	 * blockSize: số lượng file 1 block
 	 * blockID: chi so block hien tai generate xs cho Block thứ num (tên file script <numBlock>_output.csv) blockID
+	 * t nhớ là chuyển qua dùng Rjava rồi mà
+	 * à quên, 
 	 */
 	public static void ProbGen(int blockSize, int blockID, Vector<Double> ProbVector) throws IOException{
 		mgrScript.exeCreateRScriptFile(blockSize, blockID);
@@ -163,7 +173,7 @@ public class Source {
 	
 	/*
 	 * copute HMAC for each file encrypted
-	 * */
+	 */
 	public static void Primary() throws GeneralSecurityException, IOException{
 		
 		for (int i = 0; i < fileList.size(); i++) {
@@ -185,37 +195,34 @@ public class Source {
 		}
 	}
 	
-	public static void Encrypt(String key) throws Exception{
-
-		for(int i = 0; i < fileList.size(); i++){
-			String tmp = fileList.get(i);
-			String fileName = MngrFiles.folderInput + tmp;
-			String resultFileName = MngrFiles.folderOutput + tmp + ".enc";
-			
-			File file = new File(fileName);
-			if(!file.exists()){
-				//System.out.println("No file "+fileName);
-				return;
-			}
-			File file2 = new File(resultFileName);
-			if(file2.exists()){
-				//System.out.println("File for encrypted temp file already exists. Please remove it or use a different file name");
-				return;
-			}
-
-			AES.copy(Cipher.ENCRYPT_MODE, fileName, resultFileName, key);
-			
-			//System.out.println("Success. Find encrypted files in current directory");
-		}
-	}
-	
 	/*
 	 * Mã hóa với tham số là tên file và key
 	 * Giá trị trả về là true hoặc false
 	 */
-	public static boolean Encrypt(String name, String key) throws Exception{
+	public static boolean Encrypt(String name, String key, int blockID, int idFile) throws Exception{
+		
+		String strBlockID = new String(Integer.toString(blockID));
+		String stridFile = new String(Integer.toString(idFile));
+
+		int i = 0;
+		int sizeBlockID = strBlockID.length();
+		int sizeIdFile = stridFile.length();
+		
+		int sizeNumBlock = Integer.toString(MngrFiles._numBlock).length();
+		int sizeNumFileOfBlock = Integer.toString(MainGUI._numFilesOfBlock).length();
+		
+		for (i = sizeBlockID; i < sizeNumBlock; i++) {
+			strBlockID = "0" + strBlockID;
+		}
+		
+		for (i = sizeIdFile; i < sizeNumFileOfBlock; i++) {
+			stridFile = "0" + stridFile;
+		}
+		
+		System.out.println("strBlockID: " + strBlockID + "\nstridFile" + stridFile);
+		
 		String fileName = MngrFiles.folderInput + name;
-		String resultFileName = MngrFiles.folderOutput + name + ".enc";
+		String resultFileName = MngrFiles.folderOutput + strBlockID + "-" + stridFile + "-" + name + ".enc";
 		
 		File file = new File(fileName);
 		if(!file.exists()){
@@ -232,42 +239,6 @@ public class Source {
 		
 		//System.out.println("Success. Find encrypted files in current directory");
 		return true;
-	}
-	
-	public static void Decrypt(String key) throws Exception {
-		MainGUI._txtAreaDecrypt.setText("");
-		for(int i = 0; i < fileList.size(); i++){
-			String tmp = fileList.get(i);
-			String fileName = MngrFiles.folderInput + tmp;
-			String resultFileName = MngrFiles.folderOutput + tmp;
-			MainGUI._txtAreaDecrypt.append(tmp + "...");
-			
-			// File encrypt has exception is .enc
-			String temp[] = resultFileName.split("\\.");
-			if(!temp[1].equals("enc")){
-				resultFileName = temp[0] + "." + temp[1];
-			}
-			else
-				resultFileName = temp[0];
-
-			File file = new File(fileName);
-			if(!file.exists()){
-				MainGUI._txtAreaDecrypt.append("Fail\nNo file " + fileName + "\n");
-				System.out.println("No file "+fileName);
-				return;
-			}
-			File file2 = new File(resultFileName);
-			if(file2.exists()){
-				MainGUI._txtAreaDecrypt.append("Fail\nFile for encrypted temp file already exists. Please remove it or use a different file name\n");
-				System.out.println("File for the result decrypted file already exists. Please remove it or use a different file name");
-				return;
-			}
-
-			AES.copy(Cipher.DECRYPT_MODE, fileName, resultFileName, key);
-
-			MainGUI._txtAreaDecrypt.append("Success\n");
-			System.out.println("Success. Find decrypted files in current directory");
-		}
 	}
 	
 	/*
@@ -303,6 +274,38 @@ public class Source {
 		return true;
 	}
 	
+	/*
+	 * Input:
+	 * 		+ DirectoryData: Đường dẫn tới thư mục chứa bộ dữ liệu cần kiểm định
+	 * 		+ startPoint:	 Vị trí file bắt đầu kiểm định trong block
+	 * 		+ endPoint:		 Vị trí file kết thúc kiểm định trong block
+	 * Description: Hàm sẽ gọi hàm computeHMACFile để tính Hmac từng file trong khoảng startPoint và endPoint
+	 * 				rồi lấy giá trị so sánh với MAC tương ứng nếu không khớp trả về false ngược lại khớp toàn bộ
+	 * 				trả về true.
+	 *  
+	 */ 
+	public static boolean Verify (String keyFile, String DirectoryData, int startPoint, int endPoint) throws GeneralSecurityException, IOException {
+		
+		int i = startPoint - 1;
+		Vector<String> filelist = new Vector<String>();
+		Vector<String> ProbVector = new Vector<String>();
+		mgrFile.getFileListVerify(DirectoryData, filelist);
+		int size = endPoint;
+		
+		MngrFiles.readKeyFileWithString(keyFile, ProbVector);
+		
+		for (; i < size; i++) {
+			String tmp = computeHMACFile(DirectoryData + filelist.get(i), ProbVector.get(i));
+			System.out.println("Prob: " + ProbVector.get(i));
+			System.out.println("tmp: " + tmp);
+			System.out.println("Mac: " + MAC.get(i));
+			if (!tmp.equals(MAC.get(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	public static void HMACTest() throws GeneralSecurityException, IOException {
 		long startTime;
 		double duration;
@@ -325,5 +328,23 @@ public class Source {
         System.out.println(duration);
 	}
 	
-
+	//convert blockID and idFile
+	//VD: 100 file thì nếu idFile = 1 sau convert sẽ ra 001
+	public static void processIdBlockAndFile(String blockID, String idFile) {
+		int sizeBlockID = blockID.length();
+		int sizeIdFile = idFile.length();
+		int i = 0;
+		
+		int sizeNumBlock = Integer.toString(MngrFiles._numBlock).length();
+		int sizeNumFileOfBlock = Integer.toString(MainGUI._numFilesOfBlock).length();
+		
+		for (i = sizeBlockID; i < sizeNumBlock; i++) {
+			blockID = "0" + blockID;
+		}
+		
+		for (i = sizeIdFile; i < sizeNumFileOfBlock; i++) {
+			idFile = "0" + idFile;
+		}
+	}
+	
 }
