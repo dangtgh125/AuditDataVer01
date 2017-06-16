@@ -514,15 +514,17 @@ public class MainGUI extends JFrame {
 	    _btnComputeConfidentInterval.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) {
 
-	    		Source.ProbVector.clear();
 	    		_txtStartPoint.setText("");
 	    		_txtEndPoint.setText("");
 	    		String keyFile = _txtField_ProbVector_Location.getText();
+	    		int tmp1 = 0, tmp2 = 0;
 	    		//show chỉ số blockID và số lương xs trong file 
 		        try {
 					MngrFiles.readKeyFile(keyFile, Source.ProbVector);
-					_txtFiled_BlockID.setText(Source.ProbVector.get(0).toString());
-					_txtField_BlockSize.setText(Source.ProbVector.get(1).toString());
+					tmp1 = Source.ProbVector.get(0).intValue();
+					tmp2 = Source.ProbVector.get(1).intValue();
+					_txtFiled_BlockID.setText(Integer.toString(tmp1));
+					_txtField_BlockSize.setText(Integer.toString(tmp2));
 					Source.ProbVector.removeElementAt(0);
 					Source.ProbVector.removeElementAt(0);
 					
@@ -544,9 +546,11 @@ public class MainGUI extends JFrame {
 					JOptionPane.showMessageDialog(null, "File Not Found!");
 					e1.printStackTrace();
 				}
+		        
 		        for (Double i : Source.ProbVector){
 		        	System.out.println(i);
 		        }
+		        Source.ProbVector.clear();
 		        
 	    	}
 	    });
@@ -554,7 +558,6 @@ public class MainGUI extends JFrame {
 	    _btnVerify.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				Source.MAC.clear();
 				String macFile = _txtField_Max_Location.getText();
 				int startPoint = 0, endPoint = 0;
 				//show chỉ số blockID và số lương xs trong file 
@@ -572,14 +575,13 @@ public class MainGUI extends JFrame {
 						endPoint = Integer.parseInt(_txtEndPoint.getText());
 					}
 					
-					if (!Source.Verify(_txtfieldInput.getText(), startPoint, endPoint)) {
+					if (!Source.Verify(_txtField_ProbVector_Location.getText(), _txtfieldInput.getText(), startPoint, endPoint)) {
 						JOptionPane.showMessageDialog(null, "Verify Fail!");
 					}
 					else
 						JOptionPane.showMessageDialog(null, "Verify Success");
 					
 					Source.MAC.clear();
-					Source.ProbVector.clear();
 					
 				} catch (FileNotFoundException e1) {
 					

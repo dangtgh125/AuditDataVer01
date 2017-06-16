@@ -85,6 +85,32 @@ public class MngrFiles {
 
 	}
 	
+	public static void readKeyFileWithString(String keyFile, Vector<String> ProbVector) throws FileNotFoundException{
+
+		InputStream in = new FileInputStream(keyFile);
+		InputStreamReader fisr = new InputStreamReader(in);
+		BufferedReader buffer = new BufferedReader(fisr);
+		String line;
+		try {
+			
+			while ((line = buffer.readLine()) != null){
+				ProbVector.addElement(line);
+				//System.out.println(line);
+			}
+			
+			ProbVector.removeElementAt(0);
+			ProbVector.removeElementAt(0);
+			
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
 	/*
 	 * Dành cho file MAC
 	 */

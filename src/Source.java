@@ -79,11 +79,11 @@ public class Source {
 	 * @numBlock : number of block
 	 * @blockSize: number file on each block
 	 * @fileList : list of file in folderEncrypt
-	 * bao nhiêu file? là sao
 	 * */
 	public static void computeHMACfileList(int numBlock, int blockSize, Vector<String> fileList) throws GeneralSecurityException, IOException{
 		
 		int count = 1;
+		Vector<String> strProbVector = new Vector<String>();
 		for(int i = 0; i < numBlock; i++){
 			//Generate ProbVector with number is blocksize
 			
@@ -91,12 +91,12 @@ public class Source {
 			MngrFiles.writeProbVectorResult(ProbVector, i + 1, "Result\\");
 			ProbVector.clear();
 			int temp = i + 1;
-			MngrFiles.readKeyFile("Result\\" + temp + "_ProbVectorResult.csv", ProbVector);
+			MngrFiles.readKeyFileWithString("Result\\" + temp + "_ProbVectorResult.csv", strProbVector);
 			
 			//compute MAC for each block
 			for(int j = 0; j < blockSize; j++){
-				String tmp = computeHMACFile(MngrFiles.folderInput + fileList.get(i * blockSize + j), ProbVector.get(j).toString());
-				System.out.println("prob" + j + ": " + ProbVector.get(j).toString());
+				String tmp = computeHMACFile(MngrFiles.folderInput + fileList.get(i * blockSize + j), strProbVector.get(j));
+				System.out.println("prob" + j + ": " + strProbVector.get(j));
 				MainGUI._txtMACArea.append("Hmac file " + count + ": " + tmp + "\n");
 				MAC.add(tmp);
 				count++;
@@ -133,7 +133,7 @@ public class Source {
 		MngrScript.deleteTempFiles();
 		
 	}
-	//key tính HMAC là string
+	
 	public static String computeHMACFile(String fileDirect, String keyPhrase) throws GeneralSecurityException, IOException{
 		HMAC hmac = new HMAC(_hashAlg, keyPhrase);
 		
@@ -173,7 +173,7 @@ public class Source {
 	
 	/*
 	 * copute HMAC for each file encrypted
-	 * */
+	 */
 	public static void Primary() throws GeneralSecurityException, IOException{
 		
 		for (int i = 0; i < fileList.size(); i++) {
@@ -284,20 +284,19 @@ public class Source {
 	 * 				trả về true.
 	 *  
 	 */ 
-	public static boolean Verify (String DirectoryData, int startPoint, int endPoint) throws GeneralSecurityException, IOException {
+	public static boolean Verify (String keyFile, String DirectoryData, int startPoint, int endPoint) throws GeneralSecurityException, IOException {
 		
 		int i = startPoint - 1;
 		Vector<String> filelist = new Vector<String>();
+		Vector<String> ProbVector = new Vector<String>();
 		mgrFile.getFileListVerify(DirectoryData, filelist);
-		int size = filelist.size();
+		int size = endPoint;
 		
-		String temp = computeHMACFile(DirectoryData + filelist.get(0), ProbVector.get(0).toString());
-		System.out.println("temp: " + temp);
-		System.out.println("Mac: " + MAC.get(0));
+		MngrFiles.readKeyFileWithString(keyFile, ProbVector);
 		
 		for (; i < size; i++) {
-			String tmp = computeHMACFile(DirectoryData + filelist.get(i), ProbVector.get(i).toString());
-			System.out.println("Prob: " + ProbVector.get(i).toString());
+			String tmp = computeHMACFile(DirectoryData + filelist.get(i), ProbVector.get(i));
+			System.out.println("Prob: " + ProbVector.get(i));
 			System.out.println("tmp: " + tmp);
 			System.out.println("Mac: " + MAC.get(i));
 			if (!tmp.equals(MAC.get(i))) {
