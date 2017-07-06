@@ -529,7 +529,7 @@ public class MainGUI extends JFrame {
 								
 								double a = mean - (sd*ProbCompute.getZ(confidenVal))/Math.sqrt(tmp2);
 								double b = mean + (sd*ProbCompute.getZ(confidenVal))/Math.sqrt(tmp2);
-								double    temp = tmp2*confidenVal - (b + 1 - a);
+								double    temp = b + 1 - a;
 								
 								System.out.println("mean = " + mean);
 								System.out.println("sd = " + sd);
@@ -553,7 +553,7 @@ public class MainGUI extends JFrame {
 								_txtNumOfFileVerify.setText(Integer.toString((int)temp));
 			        		}
 			        		else {
-			        			infoBox("Confident Value doesn't in range 0 to 100!", "Error");
+			        			infoBox("Confident Value doesn't in range 0% to 100%!", "Error");
 			        		}
 			        	}
 				        
@@ -565,13 +565,13 @@ public class MainGUI extends JFrame {
 		    			_txtConfidentValue.setText("");
 		    			if (!_txtNumOfFileVerify.equals("")) {
 		    				int numOfFileVerify = Integer.parseInt(_txtNumOfFileVerify.getText());
-		    				double z = ((double)numOfFileVerify / 2) / sd;
+		    				double z = (((double)numOfFileVerify / 2) * Math.sqrt(tmp2)) / sd;
 		    				if (z > 3.489) {
 		    					z = 3.49;
 		    				}
 		    				System.out.println(z);
 		    				confidenVal = ProbCompute.getP(z);
-		    				_txtConfidentValue.setText(Double.toString(Source.round(confidenVal * 100, 3)));
+		    				_txtConfidentValue.setText(Double.toString(Source.round(confidenVal * 100, 5)));
 		    			}
 		    		}
 			        

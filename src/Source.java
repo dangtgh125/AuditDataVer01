@@ -297,10 +297,9 @@ public class Source {
 		
 		MngrFiles.readKeyFileWithString(keyFile, ProbVector);
 		
-		int temp = getRandom(filelist);
-		listIndexRandom.add(temp);
+		int temp = 0;
 		
-		for (i = 1; i < numOfFileVerify; i++) {
+		for (i = 0; i < numOfFileVerify; i++) {
 			temp = getRandom(filelist);
 			while (listIndexRandom.indexOf(temp) != -1) {
 				temp++;
@@ -376,7 +375,8 @@ public class Source {
 	
 	//Random trả về vị trí index bất kì trong mảng
 	public static int getRandom(Vector<String> array) {
-	    int rnd = new Random().nextInt(array.size());
+		Random rd = new Random();
+	    int rnd = rd.nextInt(array.size());
 	    return rnd;
 	}
 	
