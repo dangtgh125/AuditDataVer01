@@ -24,7 +24,7 @@ public class MngrScript {
 	}
 	
 	private static double randomSd(int numFile) {
-		double random = numFile*0.02 + numFile * 0.08 * Math.random();
+		double random = numFile*0.05 + numFile * 0.2 * Math.random();
 		return random;
 	}
 	

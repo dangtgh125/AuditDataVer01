@@ -1,4 +1,8 @@
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Collections;
+import java.util.Random;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
@@ -277,33 +281,55 @@ public class Source {
 	/*
 	 * Input:
 	 * 		+ DirectoryData: Đường dẫn tới thư mục chứa bộ dữ liệu cần kiểm định
-	 * 		+ startPoint:	 Vị trí file bắt đầu kiểm định trong block
-	 * 		+ endPoint:		 Vị trí file kết thúc kiểm định trong block
+	 * 		+ numOfFileVerify:	 Số lượng file kiểm tra
 	 * Description: Hàm sẽ gọi hàm computeHMACFile để tính Hmac từng file trong khoảng startPoint và endPoint
 	 * 				rồi lấy giá trị so sánh với MAC tương ứng nếu không khớp trả về false ngược lại khớp toàn bộ
 	 * 				trả về true.
 	 *  
 	 */ 
-	public static boolean Verify (String keyFile, String DirectoryData, int startPoint, int endPoint) throws GeneralSecurityException, IOException {
+	public static int Verify (String keyFile, String DirectoryData, int numOfFileVerify) throws GeneralSecurityException, IOException {
 		
-		int i = startPoint - 1;
+		int i = 0, j = 0;
 		Vector<String> filelist = new Vector<String>();
 		Vector<String> ProbVector = new Vector<String>();
+		Vector<Integer>    listIndexRandom = new Vector<Integer>();
 		mgrFile.getFileListVerify(DirectoryData, filelist);
-		int size = endPoint;
 		
 		MngrFiles.readKeyFileWithString(keyFile, ProbVector);
 		
-		for (; i < size; i++) {
-			String tmp = computeHMACFile(DirectoryData + filelist.get(i), ProbVector.get(i));
-			System.out.println("Prob: " + ProbVector.get(i));
-			System.out.println("tmp: " + tmp);
-			System.out.println("Mac: " + MAC.get(i));
-			if (!tmp.equals(MAC.get(i))) {
-				return false;
+		int temp = 0;
+		
+		for (i = 0; i < numOfFileVerify; i++) {
+			temp = getRandom(filelist);
+			while (listIndexRandom.indexOf(temp) != -1) {
+				temp++;
+				if (temp >= filelist.size()) {
+					temp = getRandom(filelist);
+				}
 			}
+			listIndexRandom.add(temp);
 		}
-		return true;
+		
+		Collections.sort(listIndexRandom);
+		for (i = 0; i < numOfFileVerify; i++) {
+
+			System.out.println(listIndexRandom.get(i));
+		}
+		MainGUI._txtAreaLogFileVerify.setText("");
+		for (i = 0; i < numOfFileVerify; i++) {
+			j = listIndexRandom.get(i);
+			String tmp = computeHMACFile(DirectoryData + filelist.get(j), ProbVector.get(j));
+			System.out.println("Prob: " + ProbVector.get(j));
+			System.out.println("tmp: " + tmp);
+			System.out.println("Mac: " + MAC.get(j));
+			if (!tmp.equals(MAC.get(j))) {
+				return j + 1;
+			}
+			MainGUI._txtAreaLogFileVerify.append("File " + (j + 1) + " verify success!\n");
+		}
+		MainGUI._txtAreaLogFileVerify.append("Done");
+		listIndexRandom.clear();
+		return 0;
 	}
 	
 	public static void HMACTest() throws GeneralSecurityException, IOException {
@@ -347,4 +373,19 @@ public class Source {
 		}
 	}
 	
+	//Random trả về vị trí index bất kì trong mảng
+	public static int getRandom(Vector<String> array) {
+		Random rd = new Random();
+	    int rnd = rd.nextInt(array.size());
+	    return rnd;
+	}
+	
+	// value là giá trị, places là số chỉ số thập phân sau dấu ,
+	public static double round(double value, int places) {
+	    if (places < 0) throw new IllegalArgumentException();
+
+	    BigDecimal bd = new BigDecimal(value);
+	    bd = bd.setScale(places, RoundingMode.HALF_UP);
+	    return bd.doubleValue();
+	}
 }
