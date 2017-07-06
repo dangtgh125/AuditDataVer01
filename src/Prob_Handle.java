@@ -32,6 +32,7 @@ public class Prob_Handle {
 		//int count = 0;
 		System.out.println("Size: " + _ProbVector.size());
 		for(int i = 0; i < _ProbVector.size(); i++){
+			//tmp = tmp + (i+1)*_ProbVector.get(i);
 			tmp = tmp + (i+1)*_ProbVector.get(i);
 		}
 		return tmp;
@@ -40,6 +41,7 @@ public class Prob_Handle {
 	double calculateVariance(){
 		double tmp = 0;
 		for(int i = 0; i< _ProbVector.size(); i++){
+			//tmp += _ProbVector.get(i) * Math.pow(((i+1)-mean), 2);
 			tmp += _ProbVector.get(i) * Math.pow(((i+1)-mean), 2);
 		}
 		return (tmp);
