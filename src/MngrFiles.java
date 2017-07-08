@@ -9,8 +9,8 @@ import java.io.InputStreamReader;
 import java.util.Vector;
 
 public class MngrFiles {
-	public static String folderInput = "src\\DataSet\\";
-	public static String folderOutput = "src\\Encrypted\\";
+	public static String folderInput = "DataSet\\";
+	public static String folderOutput = "Encrypted\\";
 	static File _fileResult = null;
 	static FileOutputStream _fos = null;
 	public static int _numBlock = 1;

@@ -167,7 +167,7 @@ public class Source {
 		
 		ExecuteShellComand obj = new ExecuteShellComand();
 
-		String[] command = {"source('src\\\\Distribution.R')"};
+		String[] command = {"source('Distribution.R')"};
 
 		obj.executeCommand(command);
 		
