@@ -33,6 +33,11 @@ public class MngrScript {
 		double sd = randomSd(numFile);
 		System.out.println("mean = " + mean);
 		System.out.println("sd = " + sd);
+		
+		File folder = new File("Result\\" + _folderTemp);
+		if (!folder.exists()) {
+			folder.mkdirs();
+		}
 		String content = "# Create a sequence of numbers between 1 and " + numFile + " incrementing by 1."
 						+ "\n\tx <- seq(1, " + numFile + ", by = 1)"
 						+ "\n\t# Choose the mean as 2.5 and standard deviation as 0.5."
@@ -40,7 +45,7 @@ public class MngrScript {
 						+ "\n\tprint(y)"
 						+ "\n\twrite.csv(y,\"Result\\\\" + _folderTemp + "\\" + numBlock + "_output.csv\", row.names = FALSE)";
 		
-		File f = new File("src\\" + _name);
+		File f = new File(_name);
 		if (f.exists()) {
 			if (f.delete()) {
 				System.out.println("Delete success file");
