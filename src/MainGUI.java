@@ -277,11 +277,11 @@ public class MainGUI extends JFrame {
 	    
 	    _rdbtnNumberOfFiles = new JRadioButton("Number Of Files");
 	    _rdbtnNumberOfFiles.setSelected(true);
-	    _rdbtnNumberOfFiles.setBounds(243, 166, 109, 23);
+	    _rdbtnNumberOfFiles.setBounds(243, 166, 116, 23);
 	    panelVerify.add(_rdbtnNumberOfFiles);
 	    
 	    _rdbtnConfidentValue = new JRadioButton("Confident Value");
-	    _rdbtnConfidentValue.setBounds(243, 190, 109, 23);
+	    _rdbtnConfidentValue.setBounds(243, 190, 116, 23);
 	    panelVerify.add(_rdbtnConfidentValue);
 	    
 	    _txtFilesBlock = new JTextField();
