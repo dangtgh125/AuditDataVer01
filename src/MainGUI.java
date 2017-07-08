@@ -524,8 +524,9 @@ public class MainGUI extends JFrame {
 			    		_txtNumOfFileVerify.setText("");
 				        	
 			        	if (!_txtConfidentValue.getText().equals("")) {
+			        		int tamp = Integer.parseInt(_txtConfidentValue.getText());
 			        		confidenVal = Double.parseDouble(_txtConfidentValue.getText()) / 100; // 95 => 0.95
-			        		if (confidenVal < 100 && confidenVal > 0) {
+			        		if (tamp < 100 && tamp >= 0) {
 								
 								double a = mean - (sd*ProbCompute.getZ(confidenVal))/Math.sqrt(tmp2);
 								double b = mean + (sd*ProbCompute.getZ(confidenVal))/Math.sqrt(tmp2);
@@ -535,22 +536,11 @@ public class MainGUI extends JFrame {
 								System.out.println("sd = " + sd);
 								System.out.println("a = " + a);
 								System.out.println("b = " + b);
-			        			
-			        			/*double tmp3 = (double)tmp2*0.05;
-			        			double a = (Math.pow(ProbCompute.getZ(confidenVal), 2)*Math.pow(sd, 2)) / (Math.pow(tmp3, 2));
-			        			double b = Math.pow(ProbCompute.getZ(confidenVal), 2);
-			        			double c = Math.pow(sd, 2);
-			        			double d = Math.pow(tmp3, 2);
-								double    temp = a;
-								
-								System.out.println("mean = " + mean);
-								System.out.println("sd = " + sd);
-								System.out.println("a = " + a);
-								System.out.println("b = " + b);
-								System.out.println("c = " + c);
-								System.out.println("d = " + d);*/
 								
 								_txtNumOfFileVerify.setText(Integer.toString((int)temp));
+			        		}
+			        		else if (tamp == 100){
+			        			_txtNumOfFileVerify.setText(Integer.toString(tmp2)); // Nếu 100% show blocksize
 			        		}
 			        		else {
 			        			infoBox("Confident Value doesn't in range 0% to 100%!", "Error");
@@ -565,13 +555,18 @@ public class MainGUI extends JFrame {
 		    			_txtConfidentValue.setText("");
 		    			if (!_txtNumOfFileVerify.equals("")) {
 		    				int numOfFileVerify = Integer.parseInt(_txtNumOfFileVerify.getText());
-		    				double z = (((double)numOfFileVerify / 2) * Math.sqrt(tmp2)) / sd;
-		    				if (z > 3.489) {
-		    					z = 3.49;
+		    				if (numOfFileVerify == tmp2) {
+		    					_txtConfidentValue.setText("100");
 		    				}
-		    				System.out.println(z);
-		    				confidenVal = ProbCompute.getP(z);
-		    				_txtConfidentValue.setText(Double.toString(Source.round(confidenVal * 100, 5)));
+		    				else {
+		    					double z = (((double)numOfFileVerify / 2) * Math.sqrt(tmp2)) / sd;
+			    				if (z > 3.489) {
+			    					z = 3.49;
+			    				}
+			    				System.out.println("Z = " + z);
+			    				confidenVal = ProbCompute.getP(Source.round(z, 3));
+			    				_txtConfidentValue.setText(Double.toString(Source.round(confidenVal * 100, 5)));
+		    				}
 		    			}
 		    		}
 			        
